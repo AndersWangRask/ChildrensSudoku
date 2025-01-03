@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
 
 const EMOJI_SETS = {
   fruits: ['🍎', '🍌', '🍇', '🍊', '🍓', '🍉', '🍍', '🥝', '🍐', '🍑', '🍒', '🥭', '🫐', '🍋', '🍈', '🍏'],
@@ -131,15 +131,15 @@ const EmojiSudoku = () => {
     generateNewPuzzle();
   }, []);
 
-  const generateNewPuzzle = () => {
+  const generateNewPuzzle = (newDifficulty = difficulty) => {
     const newTheme = selectRandomTheme();
     setCurrentTheme(newTheme);
-    const newGridSize = DIFFICULTIES[difficulty].gridSize;
+    const newGridSize = DIFFICULTIES[newDifficulty].gridSize;
     setGridSize(newGridSize);
     const newEmojis = selectRandomEmojis(EMOJI_SETS[newTheme], newGridSize);
     setCurrentEmojis(newEmojis);
     const newSolution = generateRandomSolution(newEmojis, newGridSize);
-    const newPuzzle = removeEmojisBalanced(newSolution, DIFFICULTIES[difficulty].numRemove, newGridSize);
+    const newPuzzle = removeEmojisBalanced(newSolution, DIFFICULTIES[newDifficulty].numRemove, newGridSize);
     setBoard(newPuzzle);
     setSolution(newSolution);
     setIsComplete(false);
@@ -301,7 +301,7 @@ const EmojiSudoku = () => {
       <div className="flex items-center space-x-4 mb-2">
         <Select onValueChange={(value) => {
           setDifficulty(value);
-          generateNewPuzzle();
+          generateNewPuzzle(value);
         }} defaultValue={difficulty}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Select difficulty" />
@@ -312,7 +312,7 @@ const EmojiSudoku = () => {
             <SelectItem value="hard">Hard (9x9)</SelectItem>
           </SelectContent>
         </Select>
-        <Button onClick={generateNewPuzzle} className="bg-green-500 text-white">New Puzzle</Button>
+        <Button onClick={() => generateNewPuzzle(difficulty)} className="bg-green-500 text-white">New Puzzle</Button>
       </div>
       {isComplete && (
         <div className="mt-4 text-xl font-bold text-green-600 animate-bounce">
