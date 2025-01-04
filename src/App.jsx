@@ -20,7 +20,7 @@ const EMOJI_SETS = {
 const DIFFICULTIES = {
   easy: { gridSize: 4, numRemove: [4, 6] },
   medium: { gridSize: 6, numRemove: [15, 20] },
-  hard: { gridSize: 9, numRemove: [45, 55] }
+  hard: { gridSize: 9, numRemove: [30, 37] } // Adjusted values for hard difficulty
 };
 
 // Grid-specific logic
