@@ -96,23 +96,41 @@ const gridLogic = {
   }
 };
 
-const getCellClassNameHelper = (rowIndex, colIndex, board, feedbackCell, completedSections, isBoxBorder, isBoxRightBorder, boxSize) => {
-  return `w-12 h-12 flex items-center justify-center text-2xl 
+const getCellClassNameHelper = (
+  rowIndex,
+  colIndex,
+  board,
+  feedbackCell,
+  completedSections,
+  isBoxBorder,
+  isBoxRightBorder,
+  boxSize
+) => {
+  const isFeedbackCell = feedbackCell && feedbackCell.row === rowIndex && feedbackCell.col === colIndex;
+  const isErrorCell = isFeedbackCell && !feedbackCell.correct;
+  const isEmptyCell = board[rowIndex][colIndex] === null;
+
+  return `w-12 h-12 flex items-center justify-center text-2xl
           border border-green-300 cursor-pointer
           ${isBoxBorder ? 'border-b-2 border-b-green-600' : ''}
           ${isBoxRightBorder ? 'border-r-2 border-r-green-600' : ''}
-          ${board[rowIndex][colIndex] === null ? 'hover:bg-yellow-200' : ''}
-          ${feedbackCell && feedbackCell.row === rowIndex && feedbackCell.col === colIndex
-            ? (feedbackCell.correct ? 'bg-green-300' : 'bg-red-300')
-            : ''}
-          ${completedSections.some(
-            section => 
-              (section.type === 'row' && section.index === rowIndex) ||
-              (section.type === 'col' && section.index === colIndex) ||
-              (section.type === 'box' && 
-               rowIndex >= section.row && rowIndex < section.row + (section.height || boxSize) &&
-               colIndex >= section.col && colIndex < section.col + (section.width || boxSize))
-          ) ? 'bg-yellow-100' : ''}`;
+          ${!isErrorCell && isEmptyCell ? 'hover:bg-yellow-200' : ''}
+          ${isErrorCell ? 'bg-red-500 transition duration-500 ease-in-out' : ''}
+          ${
+            completedSections.some(section =>
+              section.type === 'row'
+                ? section.index === rowIndex
+                : section.type === 'col'
+                ? section.index === colIndex
+                : section.type === 'box' &&
+                  rowIndex >= section.row &&
+                  rowIndex < section.row + (section.height || boxSize) &&
+                  colIndex >= section.col &&
+                  colIndex < section.col + (section.width || boxSize)
+            )
+              ? 'bg-yellow-100'
+              : ''
+          }`;
 };
 
 const EmojiSudoku = () => {
