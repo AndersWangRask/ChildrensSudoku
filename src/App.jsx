@@ -20,7 +20,7 @@ const EMOJI_SETS = {
 const DIFFICULTIES = {
   easy: { gridSize: 4, numRemove: [4, 6] },
   medium: { gridSize: 6, numRemove: [15, 20] },
-  hard: { gridSize: 9, numRemove: [30, 37] } // Adjusted values for hard difficulty
+  hard: { gridSize: 9, numRemove: [30, 37] }
 };
 
 // Grid-specific logic
@@ -110,8 +110,8 @@ const getCellClassNameHelper = (rowIndex, colIndex, board, feedbackCell, complet
               (section.type === 'row' && section.index === rowIndex) ||
               (section.type === 'col' && section.index === colIndex) ||
               (section.type === 'box' && 
-               rowIndex >= section.row && rowIndex < section.row + boxSize &&
-               colIndex >= section.col && colIndex < section.col + boxSize)
+               rowIndex >= section.row && rowIndex < section.row + (section.height || boxSize) &&
+               colIndex >= section.col && colIndex < section.col + (section.width || boxSize))
           ) ? 'bg-yellow-100' : ''}`;
 };
 
@@ -236,6 +236,8 @@ const EmojiSudoku = () => {
     const size = board.length;
     const newCompletedSections = [...completedSections];
     const { boxSize } = gridLogic[size];
+    const boxHeight = boxSize;
+    const boxWidth = (size === 6 ? 3 : boxSize);
 
     // Check row
     if (board[row].every(cell => cell !== null)) {
@@ -248,11 +250,11 @@ const EmojiSudoku = () => {
     }
 
     // Check box
-    const boxRow = Math.floor(row / boxSize) * boxSize;
-    const boxCol = Math.floor(col / (size === 6 ? 3 : boxSize)) * (size === 6 ? 3 : boxSize);
+    const boxRow = Math.floor(row / boxHeight) * boxHeight;
+    const boxCol = Math.floor(col / boxWidth) * boxWidth;
     let boxComplete = true;
-    for (let i = 0; i < boxSize; i++) {
-      for (let j = 0; j < (size === 6 ? 3 : boxSize); j++) {
+    for (let i = 0; i < boxHeight; i++) {
+      for (let j = 0; j < boxWidth; j++) {
         if (board[boxRow + i][boxCol + j] === null) {
           boxComplete = false;
           break;
@@ -261,7 +263,13 @@ const EmojiSudoku = () => {
       if (!boxComplete) break;
     }
     if (boxComplete) {
-      newCompletedSections.push({ type: 'box', row: boxRow, col: boxCol });
+      newCompletedSections.push({
+        type: 'box',
+        row: boxRow,
+        col: boxCol,
+        height: boxHeight,
+        width: boxWidth
+      });
     }
 
     return newCompletedSections;
