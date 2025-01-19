@@ -329,10 +329,10 @@ const EmojiSudoku = () => {
           setDifficulty(value);
           generateNewPuzzle(value);
         }} defaultValue={difficulty}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] bg-white">
             <SelectValue placeholder="Select difficulty" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem value="easy">Easy (4x4)</SelectItem>
             <SelectItem value="medium">Medium (6x6)</SelectItem>
             <SelectItem value="hard">Hard (9x9)</SelectItem>
