@@ -144,6 +144,7 @@ const EmojiSudoku = () => {
   const [gridSize, setGridSize] = useState(DIFFICULTIES.easy.gridSize);
   const [feedbackCell, setFeedbackCell] = useState(null);
   const [completedSections, setCompletedSections] = useState([]);
+  const [errorCount, setErrorCount] = useState(0);
 
   useEffect(() => {
     generateNewPuzzle();
@@ -164,6 +165,7 @@ const EmojiSudoku = () => {
     setSelectedEmoji(null);
     setFeedbackCell(null);
     setCompletedSections([]);
+    setErrorCount(0);
   };
 
   const selectRandomTheme = () => {
@@ -244,6 +246,7 @@ const EmojiSudoku = () => {
           setIsComplete(true);
         }
       } else {
+        setErrorCount(errorCount + 1); // Increment error count on incorrect placement
         setFeedbackCell({ row, col, correct: false });
         setTimeout(() => setFeedbackCell(null), 500);
       }
@@ -323,6 +326,10 @@ const EmojiSudoku = () => {
             {emoji}
           </Button>
         ))}
+      </div>
+      {/* Display error count below the row of emojis */}
+      <div className="mb-2 text-lg text-red-600">
+        Errors: {errorCount}
       </div>
       <div className="flex items-center space-x-4 mb-2">
         <Select onValueChange={(value) => {
