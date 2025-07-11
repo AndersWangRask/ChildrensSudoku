@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build:*)",
+      "Bash(rm:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(ls:*)",
+      "Bash(npx vite:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(node:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(sudo iptables:*)",
+      "Bash(pkill:*)",
+      "Bash(true)",
+      "Bash(cat:*)",
+      "Bash(ss:*)",
+      "WebFetch(domain:localhost)",
+      "WebFetch(domain:192.168.142.131)",
+      "Bash(kill:*)",
+      "Bash(./node_modules/.bin/vite)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_install",
+      "Bash(npx playwright install:*)",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_snapshot",
+      "Bash(grep:*)",
+      "Bash(sudo apt:*)",
+      "Bash(sudo rm:*)",
+      "mcp__playwright__browser_close",
+      "Bash(find:*)",
+      "Bash(env)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(claude mcp:*)",
+      "mcp__playwright__browser_click"
+    ],
+    "deny": []
+  }
+}
