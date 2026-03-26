@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Children's Sudoku",
-    "slug": "childrenssudoku",
+    "name": "Free Fruit Sudoku for Kids",
+    "slug": "free-fruit-sudoku-for-kids",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

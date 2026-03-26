@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Rounded yellow background -->
+  <rect x="2" y="2" width="60" height="60" rx="12" ry="12" fill="#FFD93D" stroke="#F5C000" stroke-width="2"/>
+
+  <!-- 2x2 grid lines -->
+  <line x1="32" y1="8" x2="32" y2="56" stroke="#8B6914" stroke-width="2" stroke-linecap="round"/>
+  <line x1="8" y1="32" x2="56" y2="32" stroke="#8B6914" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Top-left: Red apple -->
+  <circle cx="20" cy="20" r="8" fill="#E74C3C"/>
+  <line x1="20" y1="12" x2="21" y2="9" stroke="#5D4037" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M21 10 Q25 8 24 12" fill="#4CAF50" stroke="none"/>
+
+  <!-- Top-right: Orange (fruit) -->
+  <circle cx="44" cy="20" r="8" fill="#FF9800"/>
+  <line x1="44" y1="12" x2="44" y2="10" stroke="#5D4037" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M44 11 Q48 9 46 13" fill="#4CAF50" stroke="none"/>
+
+  <!-- Bottom-left: Green grape cluster -->
+  <circle cx="17" cy="42" r="4" fill="#66BB6A"/>
+  <circle cx="23" cy="42" r="4" fill="#66BB6A"/>
+  <circle cx="20" cy="47" r="4" fill="#4CAF50"/>
+  <circle cx="20" cy="37" r="3" fill="#81C784"/>
+  <line x1="20" y1="34" x2="20" y2="32" stroke="#5D4037" stroke-width="1" stroke-linecap="round"/>
+
+  <!-- Bottom-right: Purple plum -->
+  <circle cx="44" cy="44" r="8" fill="#9C27B0"/>
+  <ellipse cx="41" cy="41" rx="2" ry="3" fill="#BA68C8" opacity="0.6"/>
+  <line x1="44" y1="36" x2="45" y2="34" stroke="#5D4037" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M45 35 Q49 33 47 37" fill="#4CAF50" stroke="none"/>
+</svg>

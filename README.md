@@ -1,16 +1,16 @@
-# Children's Sudoku - Monorepo
+# Free Fruit Sudoku for Kids
 
-A fun emoji-based Sudoku game for children, available on both web and mobile platforms.
+A fun fruit-emoji Sudoku game for children, available on both web and mobile platforms.
 
-## 🎮 Game Features
+## Game Features
 
 - Multiple difficulty levels (4x4, 6x6, 9x9 grids)
-- Various emoji themes (animals, fruits, vehicles, etc.)
+- Fruit emoji theme
 - Visual feedback for correct/incorrect moves
 - Error tracking
 - Responsive design
 
-## 📁 Project Structure
+## Project Structure
 
 This is a monorepo containing:
 
@@ -18,44 +18,38 @@ This is a monorepo containing:
 ChildrensSudoku/
 ├── apps/
 │   ├── web/          # React web app (Vite)
-│   └── mobile/       # React Native app (Expo)
+│   └── mobile/       # React Native app (Expo) — primary product
 ├── packages/
 │   └── core/         # Shared game logic
-├── CLAUDE.md         # Development plan and progress
-└── MIGRATION_PLAN.md # Technical migration details
+└── package.json      # npm workspaces root
 ```
 
-## 🚀 Quick Start
+## Quick Start
+
+### Install all dependencies
+
+```bash
+npm install
+```
 
 ### Web App
 
 ```bash
-cd apps/web
-npm install --no-bin-links
-npm run dev
+npm run dev:web
 ```
 
-Visit http://localhost:5173
+Visit http://localhost:5191
 
 ### Mobile App
 
 ```bash
-cd apps/mobile
-npm install --no-bin-links
-npx expo start
+npm run dev:mobile
 ```
 
-Use Expo Go app to scan QR code
+Use Expo Go app to scan QR code.
 
-## 🛠️ Development
+## Technology Stack
 
-This project uses:
 - **Web**: React + Vite + Tailwind CSS
 - **Mobile**: React Native + Expo
-- **Shared Logic**: Vanilla JavaScript modules
-
-## 📖 Documentation
-
-- [CLAUDE.md](./CLAUDE.md) - Development roadmap and learning objectives
-- [MIGRATION_PLAN.md](./MIGRATION_PLAN.md) - Technical migration details
-- [CROSS_PLATFORM_DEVELOPMENT.md](./CROSS_PLATFORM_DEVELOPMENT.md) - VMware HGFS setup guide
+- **Shared Logic**: Vanilla JavaScript modules in `packages/core`

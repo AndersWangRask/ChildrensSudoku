@@ -1,33 +1,33 @@
-# Children's Sudoku - React Native Migration Project
+# Free Fruit Sudoku for Kids
 
 ## Project Overview
-This is a children's Sudoku game built with React and Vite. We are migrating it to support both web and mobile platforms using React Native/Expo while maintaining the existing web functionality.
+A children's Sudoku game using fruit emojis, built for both web and mobile platforms. The mobile version is the primary product; the web version is maintained alongside it.
 
 ## Current Status
 - Branch: `react-native-expo`
-- Phase: Setting up monorepo structure
-- Original web app is being preserved and enhanced
+- Mobile app (React Native/Expo) is the primary target
+- Web app (React + Vite) is maintained in parallel
 
-## Architecture Plan
+## Architecture
 
 ### Monorepo Structure
 ```
 ChildrensSudoku/
 ├── apps/
-│   ├── web/          # React web app (Vite)
-│   └── mobile/       # React Native app (Expo)
+│   ├── web/          # React web app (Vite + Tailwind CSS)
+│   └── mobile/       # React Native app (Expo) — primary product
 ├── packages/
-│   └── core/         # Shared game logic
-└── package.json      # Workspace configuration
+│   └── core/         # Shared game logic (vanilla JS)
+└── package.json      # npm workspaces root
 ```
 
 ### Technology Stack
 - **Web**: React + Vite + Tailwind CSS
-- **Mobile**: React Native + Expo
+- **Mobile**: React Native + Expo (expo-av for sound, expo-haptics for haptics)
 - **Shared**: Core game logic in vanilla JavaScript
-- **Build**: npm workspaces + Turbo (optional)
+- **Build**: npm workspaces
 
-## Migration Steps
+## Completed Phases
 
 ### ✅ Phase 1: Monorepo Setup
 - [x] Create branch for React Native development
@@ -43,30 +43,36 @@ ChildrensSudoku/
 - [x] Implement touch interactions
 - [x] Style with React Native StyleSheet
 
-### 📋 Phase 3: Feature Enhancement
-- [ ] Add sound effects (learning goal)
-- [ ] Implement haptic feedback
-- [ ] Add app icons and splash screens
-- [ ] Test on iOS and Android
+### ✅ Step 1: Rebrand to "Free Fruit Sudoku for Kids"
+- [x] Rename game throughout all UI text, titles, and metadata
+- [x] Strip all non-fruit emoji sets from `packages/core/src/gameLogic.js`
+- [x] Remove theme selection logic (game is always fruit-themed)
+- [x] Update mobile `app.json` with new name
+- [x] Update `README.md`
 
-### 📋 Phase 4: Future Learning Goals
+### ✅ Step 2: Tidy Up / Housekeeping
+- [x] Configure proper npm workspaces in root `package.json`
+- [x] Fix mobile app's fragile relative import to use workspace package reference
+- [x] Clean up unused files (PHASE2_COMPLETION_SUMMARY.md, CROSS_PLATFORM_DEVELOPMENT.md, MIGRATION_PLAN.md, vite.log)
+
+### ✅ Step 3: Phase 3 — Feature Enhancement
+- [x] Add sound effects (Web Audio API for web, expo-av for mobile)
+- [x] Implement haptic feedback (mobile only, expo-haptics)
+- [x] Create fruit-themed favicon for web app
+- [ ] Create fruit-themed app icon and splash screen PNGs for mobile (requires image editor)
+- [ ] Test on iOS and Android devices
+
+### 📋 Phase 4: Future Learning Goals (Deferred)
 - [ ] Camera integration (avatar photos)
 - [ ] Microphone (voice commands)
 - [ ] Location services (local leaderboards)
 - [ ] Background audio playback
 
-## Key Learning Objectives
-1. **Monorepo Management**: Understanding workspaces and shared packages
-2. **Cross-Platform Development**: Same logic, different UIs
-3. **React Native Fundamentals**: Components, styling, navigation
-4. **Device APIs**: Camera, microphone, location (future apps)
-5. **App Distribution**: App Store and Google Play submission
-
 ## Development Commands
 
 ### Web Development
 ```bash
-npm run dev:web        # Start web dev server
+npm run dev:web        # Start web dev server (port 5191)
 npm run build:web      # Build web app
 ```
 
@@ -82,15 +88,8 @@ npm install            # Install all workspace dependencies
 ```
 
 ## Important Notes
-- Keep web app functional throughout migration
-- Share only business logic, not UI components
+- Mobile is the primary product; web is secondary
+- Keep both apps functional throughout all changes
+- Share business logic via `packages/core`, not UI components
+- Game is fruit-themed only — no other emoji sets
 - Test on real devices early and often
-- Document platform-specific quirks
-
-## Resources
-- [Expo Documentation](https://docs.expo.dev/)
-- [React Native Docs](https://reactnative.dev/)
-- [npm Workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces)
-
-## Progress Tracking
-See GitHub Issues and Pull Requests for detailed progress on each phase.

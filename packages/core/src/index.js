@@ -1,9 +1,8 @@
 export {
-  EMOJI_SETS,
+  FRUITS,
   DIFFICULTIES,
   gridLogic,
-  selectRandomTheme,
-  selectRandomEmojis,
+  selectRandomFruits,
   generateRandomSolution,
   removeEmojisBalanced,
   checkCompletedSections,

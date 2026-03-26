@@ -1,11 +1,13 @@
 {
-  "name": "childrenssudoku-monorepo",
+  "name": "free-fruit-sudoku-for-kids",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev:web": "cd apps/web && npm run dev",
-    "dev:mobile": "cd apps/mobile && npm run start",
-    "build:web": "cd apps/web && npm run build",
-    "install:all": "npm install && cd apps/web && npm install && cd ../.. && cd packages/core && npm install",
-    "setup": "npm run install:all"
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:mobile": "npm run start --workspace=apps/mobile",
+    "build:web": "npm run build --workspace=apps/web"
   }
 }

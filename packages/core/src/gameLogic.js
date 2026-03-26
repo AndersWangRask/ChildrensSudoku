@@ -1,17 +1,4 @@
-export const EMOJI_SETS = {
-  fruits: ['🍎', '🍌', '🍇', '🍊', '🍓', '🍉', '🍍', '🥝', '🍐', '🍑', '🍒', '🥭', '🫐', '🍋', '🍈', '🍏'],
-  vehicles: ['🚗', '🚌', '🚲', '🏍️', '🚁', '🚂', '🚢', '🛩️', '🚜', '🚓', '🚑', '🚒', '🛵', '🚠', '🛶', '🛸'],
-  animals: ['🐶', '🐱', '🐵', '🦁', '🐘', '🦒', '🐧', '🦋', '🐸', '🦜', '🐬', '🦘', '🦥', '🦊', '🐼', '🦖'],
-  weather: ['☀️', '☁️', '🌧️', '❄️', '🌈', '⚡', '🌪️', '🌊', '🌁', '🌀', '🌤️', '🌥️', '🌦️', '🌨️', '🌩️', '🌫️'],
-  sports: ['⚽', '🏀', '🎾', '🏈', '⚾', '🏐', '🏓', '🏸', '🥊', '🏊', '🏄', '🚴', '⛷️', '🏋️', '🤸', '🤺'],
-  food: ['🍕', '🍔', '🌭', '🍟', '🌮', '🍣', '🍜', '🍝', '🍳', '🥐', '🥨', '🥞', '🧇', '🥯', '🥪', '🌯'],
-  faces: ['😀', '😂', '🥳', '😎', '🤔', '😍', '😴', '🤯', '🥸', '🤠', '🤡', '👻', '👽', '🤖', '💩', '🎃'],
-  plants: ['🌻', '🌼', '🌸', '🌺', '🌷', '🌹', '🍀', '🍁', '🍂', '🍃', '🌵', '🌴', '🌲', '🌳', '🍄', '🌱'],
-  objects: ['📱', '💻', '⌚', '📷', '🔋', '💡', '🔨', '🧲', '🔭', '🔬', '📚', '✏️', '🖍️', '🧷', '🧵', '🧶'],
-  flags: ['🏁', '🚩', '🎌', '🏴', '🏳️', '🏳️‍🌈', '🏳️‍⚧️', '🏴‍☠️', '🇺🇳', '🇦🇺', '🇨🇦', '🇯🇵', '🇰🇷', '🇬🇧', '🇺🇸', '🇪🇺'],
-  music: ['🎵', '🎶', '🎼', '🎹', '🥁', '🎸', '🎻', '🎺', '🎷', '🪕', '🪗', '🎤', '🎧', '📻', '🔉', '🔊'],
-  space: ['🌙', '🌍', '🪐', '🌟', '⭐', '💫', '☄️', '🌠', '🌌', '🚀', '🛸', '🔭', '🌑', '🌕']
-};
+export const FRUITS = ['🍎', '🍌', '🍇', '🍊', '🍓', '🍉', '🍍', '🥝', '🍐', '🍑', '🍒', '🥭', '🫐', '🍋', '🍈', '🍏'];
 
 export const DIFFICULTIES = {
   easy: { gridSize: 4, numRemove: [4, 6] },
@@ -24,11 +11,9 @@ export const gridLogic = {
   4: {
     boxSize: 2,
     isValidMove: (board, row, col, emoji) => {
-      // Check row and column
       for (let i = 0; i < 4; i++) {
         if (board[row][i] === emoji || board[i][col] === emoji) return false;
       }
-      // Check 2x2 box
       const boxRow = Math.floor(row / 2) * 2;
       const boxCol = Math.floor(col / 2) * 2;
       for (let i = 0; i < 2; i++) {
@@ -42,11 +27,9 @@ export const gridLogic = {
   6: {
     boxSize: 2,
     isValidMove: (board, row, col, emoji) => {
-      // Check row and column
       for (let i = 0; i < 6; i++) {
         if (board[row][i] === emoji || board[i][col] === emoji) return false;
       }
-      // Check 2x3 box
       const boxRow = Math.floor(row / 2) * 2;
       const boxCol = Math.floor(col / 3) * 3;
       for (let i = 0; i < 2; i++) {
@@ -60,11 +43,9 @@ export const gridLogic = {
   9: {
     boxSize: 3,
     isValidMove: (board, row, col, emoji) => {
-      // Check row and column
       for (let i = 0; i < 9; i++) {
         if (board[row][i] === emoji || board[i][col] === emoji) return false;
       }
-      // Check 3x3 box
       const boxRow = Math.floor(row / 3) * 3;
       const boxCol = Math.floor(col / 3) * 3;
       for (let i = 0; i < 3; i++) {
@@ -77,13 +58,8 @@ export const gridLogic = {
   }
 };
 
-export const selectRandomTheme = () => {
-  const themes = Object.keys(EMOJI_SETS);
-  return themes[Math.floor(Math.random() * themes.length)];
-};
-
-export const selectRandomEmojis = (emojiSet, size) => {
-  const shuffled = [...emojiSet].sort(() => 0.5 - Math.random());
+export const selectRandomFruits = (size) => {
+  const shuffled = [...FRUITS].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, size);
 };
 
@@ -98,7 +74,7 @@ const fillBoard = (board, emojis, size) => {
     if (col === size) {
       col = 0;
       row++;
-      if (row === size) return true; // Board is filled
+      if (row === size) return true;
     }
 
     if (board[row][col] !== null) return fillCell(row, col + 1);
@@ -109,7 +85,7 @@ const fillBoard = (board, emojis, size) => {
       if (gridLogic[size].isValidMove(board, row, col, emoji)) {
         board[row][col] = emoji;
         if (fillCell(row, col + 1)) return true;
-        board[row][col] = null; // Backtrack
+        board[row][col] = null;
       }
     }
 
@@ -123,7 +99,7 @@ const fillBoard = (board, emojis, size) => {
 export const removeEmojisBalanced = (solvedPuzzle, [minRemove, maxRemove], size) => {
   const puzzle = JSON.parse(JSON.stringify(solvedPuzzle));
   const numToRemove = minRemove + Math.floor(Math.random() * (maxRemove - minRemove + 1));
-  
+
   const positions = Array(size * size).fill().map((_, index) => [Math.floor(index / size), index % size]);
   for (let i = positions.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -144,17 +120,14 @@ export const checkCompletedSections = (board, row, col, completedSections, size)
   const boxHeight = boxSize;
   const boxWidth = (size === 6 ? 3 : boxSize);
 
-  // Check row
   if (board[row].every(cell => cell !== null)) {
     newCompletedSections.push({ type: 'row', index: row });
   }
 
-  // Check column
   if (board.every(r => r[col] !== null)) {
     newCompletedSections.push({ type: 'col', index: col });
   }
 
-  // Check box
   const boxRow = Math.floor(row / boxHeight) * boxHeight;
   const boxCol = Math.floor(col / boxWidth) * boxWidth;
   let boxComplete = true;
