@@ -6,5 +6,6 @@ export {
   generateRandomSolution,
   removeEmojisBalanced,
   checkCompletedSections,
-  isBoardComplete
+  isBoardComplete,
+  getHint
 } from './gameLogic.js';

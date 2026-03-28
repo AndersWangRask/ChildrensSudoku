@@ -156,3 +156,16 @@ export const checkCompletedSections = (board, row, col, completedSections, size)
 export const isBoardComplete = (board) => {
   return board.every(row => row.every(cell => cell !== null));
 };
+
+export const getHint = (board, solution) => {
+  const emptyCells = [];
+  for (let r = 0; r < board.length; r++) {
+    for (let c = 0; c < board[r].length; c++) {
+      if (board[r][c] === null) {
+        emptyCells.push({ row: r, col: c, fruit: solution[r][c] });
+      }
+    }
+  }
+  if (emptyCells.length === 0) return null;
+  return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+};

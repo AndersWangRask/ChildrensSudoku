@@ -7,6 +7,7 @@ A children's Sudoku game using fruit emojis, built for both web and mobile platf
 - Branch: `react-native-expo`
 - Mobile app (React Native/Expo) is the primary target
 - Web app (React + Vite) is maintained in parallel
+- Web app is production-ready (PWA, SEO, accessibility)
 
 ## Architecture
 
@@ -14,15 +15,16 @@ A children's Sudoku game using fruit emojis, built for both web and mobile platf
 ```
 ChildrensSudoku/
 ├── apps/
-│   ├── web/          # React web app (Vite + Tailwind CSS)
+│   ├── web/          # React web app (Vite + Tailwind CSS + PWA)
 │   └── mobile/       # React Native app (Expo) — primary product
 ├── packages/
 │   └── core/         # Shared game logic (vanilla JS)
+├── scripts/          # Asset generation scripts (Python)
 └── package.json      # npm workspaces root
 ```
 
 ### Technology Stack
-- **Web**: React + Vite + Tailwind CSS
+- **Web**: React + Vite + Tailwind CSS + vite-plugin-pwa
 - **Mobile**: React Native + Expo (expo-av for sound, expo-haptics for haptics)
 - **Shared**: Core game logic in vanilla JavaScript
 - **Build**: npm workspaces
@@ -53,16 +55,32 @@ ChildrensSudoku/
 ### ✅ Step 2: Tidy Up / Housekeeping
 - [x] Configure proper npm workspaces in root `package.json`
 - [x] Fix mobile app's fragile relative import to use workspace package reference
-- [x] Clean up unused files (PHASE2_COMPLETION_SUMMARY.md, CROSS_PLATFORM_DEVELOPMENT.md, MIGRATION_PLAN.md, vite.log)
+- [x] Clean up unused files
 
-### ✅ Step 3: Phase 3 — Feature Enhancement
-- [x] Add sound effects (Web Audio API for web, expo-av for mobile)
-- [x] Implement haptic feedback (mobile only, expo-haptics)
-- [x] Create fruit-themed favicon for web app
-- [ ] Create fruit-themed app icon and splash screen PNGs for mobile (requires image editor)
+### ✅ Step 3: Feature Enhancement
+- [x] Sound effects (Web Audio API for web, expo-av for mobile)
+- [x] Haptic feedback (mobile only, expo-haptics)
+- [x] Fruit-themed favicon, app icons, and splash screen
+- [x] Responsive board and emoji sizing
+- [x] Fruit button checkmarks when all positions filled
+- [x] Timed error emoji system (30s expiry, 5 = game over)
+- [x] "How to play" overlay with rules and interface guide
+- [x] Famerlo advertisement footer
+
+### ✅ Step 4: Production Readiness
+- [x] SEO meta tags (description, Open Graph, Twitter Card)
+- [x] Social preview image (og-image.png)
+- [x] PWA support (service worker, web manifest, offline play, installable)
+- [x] PWA icons (192x192, 512x512) and apple-touch-icon
+- [x] Accessibility (ARIA labels, keyboard support, aria-live status)
+- [x] Fruit deselect (tap selected fruit to deselect)
+- [x] Friendly game over/win with "Try Again" / "Play Again" buttons
+- [x] Hint feature on Easy mode (highlights a cell for 2 seconds)
+- [x] Section completion flash animation
+- [x] Cleanup of test artifacts, updated .gitignore
 - [ ] Test on iOS and Android devices
 
-### 📋 Phase 4: Future Learning Goals (Deferred)
+### 📋 Phase 5: Future Learning Goals (Deferred)
 - [ ] Camera integration (avatar photos)
 - [ ] Microphone (voice commands)
 - [ ] Location services (local leaderboards)
@@ -73,7 +91,7 @@ ChildrensSudoku/
 ### Web Development
 ```bash
 npm run dev:web        # Start web dev server (port 5191)
-npm run build:web      # Build web app
+npm run build:web      # Build web app (static output in apps/web/dist/)
 ```
 
 ### Mobile Development
@@ -87,9 +105,18 @@ npm run dev:mobile     # Start Expo dev server
 npm install            # Install all workspace dependencies
 ```
 
+### Generate Assets
+```bash
+python3 scripts/generate-icons.py        # Mobile app icons + splash
+python3 scripts/generate-web-assets.py   # PWA icons + og-image
+```
+
 ## Important Notes
 - Mobile is the primary product; web is secondary
 - Keep both apps functional throughout all changes
 - Share business logic via `packages/core`, not UI components
 - Game is fruit-themed only — no other emoji sets
+- Web build is fully static — can be hosted anywhere
+- PWA service worker enables offline play
 - Test on real devices early and often
+- Do not commit `screenshot-*.png` files (in .gitignore)

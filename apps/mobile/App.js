@@ -9,7 +9,8 @@ import {
   SafeAreaView,
   Dimensions,
   Alert,
-  Modal
+  Modal,
+  Linking
 } from 'react-native';
 import { Audio } from 'expo-av';
 import * as Haptics from 'expo-haptics';
@@ -21,11 +22,18 @@ import {
   generateRandomSolution,
   removeEmojisBalanced,
   checkCompletedSections,
-  isBoardComplete
+  isBoardComplete,
+  getHint
 } from '@fruit-sudoku/core';
 
-const { width } = Dimensions.get('window');
-const CELL_SIZE = Math.min((width - 60) / 9, 40);
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const BOARD_PADDING = 40; // horizontal padding around board
+const MAX_BOARD_WIDTH = 500;
+
+function getCellSize(gridSize) {
+  const availableWidth = Math.min(SCREEN_WIDTH - BOARD_PADDING, MAX_BOARD_WIDTH);
+  return Math.floor((availableWidth - 20) / gridSize); // 20 for board internal padding
+}
 
 const SAD_EMOJIS = ['😢', '😭', '😤', '😠', '😡', '🤬', '😰', '😨', '😱', '😖', '😣', '😞', '😩', '🥺', '😿'];
 const MAX_ACTIVE_ERRORS = 5;
@@ -216,6 +224,8 @@ export default function App() {
   const [completedSections, setCompletedSections] = useState([]);
   const [activeErrors, setActiveErrors] = useState([]);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
+  const [hintCell, setHintCell] = useState(null);
+  const [flashingSections, setFlashingSections] = useState([]);
   const errorTimersRef = useRef([]);
 
   useEffect(() => {
@@ -244,11 +254,21 @@ export default function App() {
     setSelectedEmoji(null);
     setFeedbackCell(null);
     setCompletedSections([]);
+    setHintCell(null);
   };
 
   useEffect(() => {
     generateNewPuzzle();
   }, []);
+
+  const handleHint = () => {
+    if (isComplete || isGameOver) return;
+    const hint = getHint(board, solution);
+    if (!hint) return;
+    setSelectedEmoji(null);
+    setHintCell(hint);
+    setTimeout(() => setHintCell(null), 2000);
+  };
 
   const addError = useCallback(() => {
     const id = Date.now() + Math.random();
@@ -271,6 +291,7 @@ export default function App() {
 
   const handleCellPress = (row, col) => {
     if (isGameOver || isComplete) return;
+    setHintCell(null);
     if (selectedEmoji && board[row][col] === null) {
       if (selectedEmoji === solution[row][col]) {
         const newBoard = [...board];
@@ -287,8 +308,10 @@ export default function App() {
           setIsComplete(true);
           clearErrors();
           playPuzzleCompleteSound();
-          Alert.alert('Congratulations!', 'You solved the puzzle! 🎉');
         } else if (newCompletedSections.length > completedSections.length) {
+          const delta = newCompletedSections.slice(completedSections.length);
+          setFlashingSections(delta);
+          setTimeout(() => setFlashingSections([]), 800);
           playSectionCompleteSound();
         } else {
           playCorrectSound();
@@ -307,9 +330,10 @@ export default function App() {
     const isErrorCell = isFeedbackCell && !feedbackCell.correct;
     const isEmptyCell = board[rowIndex][colIndex] === null;
 
+    const cellSize = getCellSize(gridSize);
     const baseStyle = {
-      width: CELL_SIZE,
-      height: CELL_SIZE,
+      width: cellSize,
+      height: cellSize,
       justifyContent: 'center',
       alignItems: 'center',
       borderWidth: 1,
@@ -351,22 +375,43 @@ export default function App() {
       baseStyle.backgroundColor = '#fef3c7';
     }
 
+    const inFlashingSection = flashingSections.some(section => {
+      if (section.type === 'row') return section.index === rowIndex;
+      if (section.type === 'col') return section.index === colIndex;
+      if (section.type === 'box') {
+        return rowIndex >= section.row && rowIndex < section.row + section.height &&
+               colIndex >= section.col && colIndex < section.col + section.width;
+      }
+      return false;
+    });
+
+    if (inFlashingSection) {
+      baseStyle.backgroundColor = '#fde047';
+    }
+
     return baseStyle;
   };
 
   const renderBoard = () => {
     return (
-      <View style={styles.board}>
+      <View style={styles.board} accessibilityRole="grid" accessibilityLabel="Sudoku puzzle board">
         {board.map((row, rowIndex) => (
           <View key={rowIndex} style={styles.row}>
-            {row.map((cell, colIndex) => (
-              <TouchableOpacity
-                key={`${rowIndex}-${colIndex}`}
-                style={getCellStyle(rowIndex, colIndex)}
-                onPress={() => handleCellPress(rowIndex, colIndex)}
-              >
-                <Text style={styles.cellText}>{cell}</Text>
-              </TouchableOpacity>
+            {row.map((cell, colIndex) => {
+              const isHint = hintCell && hintCell.row === rowIndex && hintCell.col === colIndex;
+              return (
+                <TouchableOpacity
+                  key={`${rowIndex}-${colIndex}`}
+                  style={[getCellStyle(rowIndex, colIndex), isHint && { borderColor: '#facc15', borderWidth: 3 }]}
+                  onPress={() => handleCellPress(rowIndex, colIndex)}
+                  accessibilityLabel={cell ? `Row ${rowIndex + 1}, Column ${colIndex + 1}: ${cell}` : `Row ${rowIndex + 1}, Column ${colIndex + 1}: empty`}
+                >
+                  <Text style={[styles.cellText, { fontSize: getCellSize(gridSize) * 0.6 }, isHint && !cell && { opacity: 0.3 }]}>
+                    {cell || (isHint ? hintCell.fruit : null)}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })
             ))}
           </View>
         ))}
@@ -375,6 +420,8 @@ export default function App() {
   };
 
   const renderFruitButtons = () => {
+    const buttonSize = getCellSize(gridSize) * 0.85;
+    const buttonFontSize = getCellSize(gridSize) * 0.5;
     return (
       <View style={styles.fruitContainer}>
         {currentFruits.map(fruit => {
@@ -384,13 +431,16 @@ export default function App() {
               key={fruit}
               style={[
                 styles.fruitButton,
+                { width: buttonSize, height: buttonSize },
                 selectedEmoji === fruit && !completed && styles.selectedFruitButton,
                 completed && styles.completedFruitButton
               ]}
-              onPress={() => !completed && setSelectedEmoji(fruit)}
+              onPress={() => !completed && setSelectedEmoji(selectedEmoji === fruit ? null : fruit)}
               disabled={completed}
+              accessibilityLabel={completed ? `${fruit} completed` : `Select ${fruit}`}
+              accessibilityState={{ selected: selectedEmoji === fruit }}
             >
-              <Text style={styles.fruitText}>{fruit}</Text>
+              <Text style={{ fontSize: buttonFontSize }}>{fruit}</Text>
               {completed && (
                 <View style={styles.checkBadge}>
                   <Text style={styles.checkText}>✓</Text>
@@ -406,15 +456,21 @@ export default function App() {
   const renderStatusArea = () => {
     if (isComplete) {
       return (
-        <View style={styles.statusContainer}>
+        <View style={styles.statusContainerColumn}>
           <Text style={styles.completeText}>Congratulations! You solved it! 🎉</Text>
+          <TouchableOpacity style={styles.playAgainButton} onPress={() => generateNewPuzzle(difficulty)}>
+            <Text style={styles.playAgainText}>Play Again</Text>
+          </TouchableOpacity>
         </View>
       );
     }
     if (isGameOver) {
       return (
-        <View style={styles.statusContainer}>
+        <View style={styles.statusContainerColumn}>
           <Text style={styles.gameOverText}>Game Over! Too many mistakes! 😢</Text>
+          <TouchableOpacity style={styles.tryAgainButton} onPress={() => generateNewPuzzle(difficulty)}>
+            <Text style={styles.tryAgainText}>Try Again</Text>
+          </TouchableOpacity>
         </View>
       );
     }
@@ -463,12 +519,19 @@ export default function App() {
         {renderFruitButtons()}
         {renderStatusArea()}
         {renderDifficultyButtons()}
-        <TouchableOpacity
-          style={styles.newPuzzleButton}
-          onPress={() => generateNewPuzzle(difficulty)}
-        >
-          <Text style={styles.newPuzzleText}>New Puzzle</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={styles.newPuzzleButton}
+            onPress={() => generateNewPuzzle(difficulty)}
+          >
+            <Text style={styles.newPuzzleText}>New Puzzle</Text>
+          </TouchableOpacity>
+          {difficulty === 'easy' && (
+            <TouchableOpacity style={styles.hintButton} onPress={handleHint}>
+              <Text style={styles.hintButtonText}>Hint 💡</Text>
+            </TouchableOpacity>
+          )}
+        </View>
         <TouchableOpacity
           style={styles.howToPlayLink}
           onPress={() => setShowHowToPlay(true)}
@@ -476,6 +539,14 @@ export default function App() {
           <Text style={styles.howToPlayText}>How to play</Text>
         </TouchableOpacity>
       </ScrollView>
+      <View style={styles.footer}>
+        <Text
+          style={styles.footerText}
+          onPress={() => Linking.openURL('https://famerlo.com')}
+        >
+          Famerlo - Family life, organized!
+        </Text>
+      </View>
       <HowToPlay visible={showHowToPlay} onClose={() => setShowHowToPlay(false)} />
     </SafeAreaView>
   );
@@ -489,6 +560,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     alignItems: 'center',
     paddingVertical: 20,
+    flexGrow: 1,
   },
   title: {
     fontSize: 24,
@@ -514,15 +586,13 @@ const styles = StyleSheet.create({
   },
   fruitContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'center',
     marginTop: 20,
     marginHorizontal: 20,
+    gap: 4,
   },
   fruitButton: {
-    width: 50,
-    height: 50,
-    margin: 5,
+    margin: 0,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ffffff',
@@ -566,17 +636,44 @@ const styles = StyleSheet.create({
     minHeight: 36,
     flexWrap: 'wrap',
   },
+  statusContainerColumn: {
+    alignItems: 'center',
+    marginTop: 10,
+    gap: 10,
+  },
+  playAgainButton: {
+    backgroundColor: '#16a34a',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  playAgainText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  tryAgainButton: {
+    backgroundColor: '#dc2626',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  tryAgainText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   errorEmoji: {
     fontSize: 28,
     marginHorizontal: 2,
   },
   gameOverText: {
-    fontSize: 20,
+    fontSize: Math.min(SCREEN_WIDTH * 0.045, 20),
     fontWeight: 'bold',
     color: '#dc2626',
   },
   completeText: {
-    fontSize: 20,
+    fontSize: Math.min(SCREEN_WIDTH * 0.045, 20),
     fontWeight: 'bold',
     color: '#16a34a',
   },
@@ -605,15 +702,30 @@ const styles = StyleSheet.create({
   selectedDifficultyText: {
     color: '#ffffff',
   },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 10,
+  },
   newPuzzleButton: {
     backgroundColor: '#16a34a',
     paddingHorizontal: 30,
     paddingVertical: 15,
     borderRadius: 8,
-    marginTop: 10,
   },
   newPuzzleText: {
     color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  hintButton: {
+    backgroundColor: '#facc15',
+    paddingHorizontal: 24,
+    paddingVertical: 15,
+    borderRadius: 8,
+  },
+  hintButtonText: {
+    color: '#374151',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -623,6 +735,17 @@ const styles = StyleSheet.create({
   howToPlayText: {
     color: '#16a34a',
     fontSize: 14,
+    textDecorationLine: 'underline',
+  },
+  footer: {
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#facc15',
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 13,
+    color: '#6b7280',
     textDecorationLine: 'underline',
   },
 });

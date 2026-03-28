@@ -9,7 +9,8 @@ import {
   generateRandomSolution,
   removeEmojisBalanced,
   checkCompletedSections,
-  isBoardComplete
+  isBoardComplete,
+  getHint
 } from '@fruit-sudoku/core';
 import { playCorrectSound, playWrongSound, playSectionCompleteSound, playPuzzleCompleteSound } from './sounds';
 
@@ -37,26 +38,27 @@ const gridStyling = {
     getCellClassName: (rowIndex, colIndex, board, feedbackCell, completedSections) => {
       const isBoxBorder = rowIndex === 1;
       const isBoxRightBorder = colIndex === 1;
-      return getCellClassNameHelper(rowIndex, colIndex, board, feedbackCell, completedSections, isBoxBorder, isBoxRightBorder, 2);
+      return getCellClassNameHelper(4, rowIndex, colIndex, board, feedbackCell, completedSections, isBoxBorder, isBoxRightBorder, 2);
     }
   },
   6: {
     getCellClassName: (rowIndex, colIndex, board, feedbackCell, completedSections) => {
       const isBoxBorder = rowIndex === 1 || rowIndex === 3;
       const isBoxRightBorder = colIndex === 2;
-      return getCellClassNameHelper(rowIndex, colIndex, board, feedbackCell, completedSections, isBoxBorder, isBoxRightBorder, 2);
+      return getCellClassNameHelper(6, rowIndex, colIndex, board, feedbackCell, completedSections, isBoxBorder, isBoxRightBorder, 2);
     }
   },
   9: {
     getCellClassName: (rowIndex, colIndex, board, feedbackCell, completedSections) => {
       const isBoxBorder = rowIndex === 2 || rowIndex === 5;
       const isBoxRightBorder = colIndex === 2 || colIndex === 5;
-      return getCellClassNameHelper(rowIndex, colIndex, board, feedbackCell, completedSections, isBoxBorder, isBoxRightBorder, 3);
+      return getCellClassNameHelper(9, rowIndex, colIndex, board, feedbackCell, completedSections, isBoxBorder, isBoxRightBorder, 3);
     }
   }
 };
 
 const getCellClassNameHelper = (
+  gridSize,
   rowIndex,
   colIndex,
   board,
@@ -70,7 +72,7 @@ const getCellClassNameHelper = (
   const isErrorCell = isFeedbackCell && !feedbackCell.correct;
   const isEmptyCell = board[rowIndex][colIndex] === null;
 
-  return `w-12 h-12 flex items-center justify-center text-2xl
+  return `aspect-square flex items-center justify-center
           border border-green-300 cursor-pointer
           ${isBoxBorder ? 'border-b-2 border-b-green-600' : ''}
           ${isBoxRightBorder ? 'border-r-2 border-r-green-600' : ''}
@@ -138,6 +140,16 @@ const HowToPlay = ({ onClose }) => (
   </div>
 );
 
+function useWindowWidth() {
+  const [w, setW] = useState(typeof window !== 'undefined' ? window.innerWidth : 500);
+  useEffect(() => {
+    const onResize = () => setW(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return w;
+}
+
 const EmojiSudoku = () => {
   const [board, setBoard] = useState([]);
   const [solution, setSolution] = useState([]);
@@ -151,7 +163,17 @@ const EmojiSudoku = () => {
   const [completedSections, setCompletedSections] = useState([]);
   const [activeErrors, setActiveErrors] = useState([]);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
+  const [hintCell, setHintCell] = useState(null);
+  const [flashingSections, setFlashingSections] = useState([]);
   const errorTimersRef = useRef([]);
+  const windowWidth = useWindowWidth();
+
+  // Board width matches the grid container: min(viewport - padding, 500px)
+  const boardWidth = Math.min(windowWidth - 48, 500);
+  const cellSize = boardWidth / gridSize;
+  const buttonSize = cellSize * 0.85;
+  const cellFontSize = Math.max(14, Math.min(cellSize * 0.6, 60));
+  const buttonFontSize = Math.max(12, Math.min(cellSize * 0.5, 50));
 
   useEffect(() => {
     return () => errorTimersRef.current.forEach(t => clearTimeout(t));
@@ -179,6 +201,7 @@ const EmojiSudoku = () => {
     setSelectedEmoji(null);
     setFeedbackCell(null);
     setCompletedSections([]);
+    setHintCell(null);
   };
 
   useEffect(() => {
@@ -204,8 +227,18 @@ const EmojiSudoku = () => {
     errorTimersRef.current.push(timer);
   }, []);
 
+  const handleHint = () => {
+    if (isComplete || isGameOver) return;
+    const hint = getHint(board, solution);
+    if (!hint) return;
+    setSelectedEmoji(null);
+    setHintCell(hint);
+    setTimeout(() => setHintCell(null), 2000);
+  };
+
   const handleCellClick = (row, col) => {
     if (isGameOver || isComplete) return;
+    setHintCell(null);
     if (selectedEmoji && board[row][col] === null) {
       if (selectedEmoji === solution[row][col]) {
         const newBoard = [...board];
@@ -223,6 +256,9 @@ const EmojiSudoku = () => {
           clearErrors();
           playPuzzleCompleteSound();
         } else if (newCompletedSections.length > completedSections.length) {
+          const delta = newCompletedSections.slice(completedSections.length);
+          setFlashingSections(delta);
+          setTimeout(() => setFlashingSections([]), 800);
           playSectionCompleteSound();
         } else {
           playCorrectSound();
@@ -237,36 +273,62 @@ const EmojiSudoku = () => {
   };
 
   return (
-    <div className="flex flex-col items-center p-4 bg-yellow-100 rounded-lg">
+    <div className="flex flex-col items-center min-h-screen bg-yellow-100">
+      <div className="flex flex-col items-center p-4 w-full max-w-lg flex-1">
       <h2 className="text-2xl mb-4 font-bold text-green-600">Free Fruit Sudoku for Kids 🍎</h2>
-      <div className={`grid grid-cols-${gridSize} gap-0 mb-4 p-2 bg-white rounded-lg shadow-md`}>
+      <div role="grid" aria-label="Sudoku puzzle board"
+           className={`grid grid-cols-${gridSize} gap-0 mb-4 p-2 bg-white rounded-lg shadow-md w-full`}
+           style={{
+             maxWidth: '500px',
+             fontSize: `${cellFontSize}px`,
+           }}>
         {board.map((row, rowIndex) =>
-          row.map((cell, colIndex) => (
-            <div
-              key={`${rowIndex}-${colIndex}`}
-              className={gridStyling[gridSize].getCellClassName(rowIndex, colIndex, board, feedbackCell, completedSections)}
-              onClick={() => handleCellClick(rowIndex, colIndex)}
-            >
-              {cell}
-            </div>
-          ))
+          row.map((cell, colIndex) => {
+            const isHintCell = hintCell && hintCell.row === rowIndex && hintCell.col === colIndex;
+            const isFlashing = flashingSections.some(section =>
+              section.type === 'row' ? section.index === rowIndex
+              : section.type === 'col' ? section.index === colIndex
+              : section.type === 'box' && rowIndex >= section.row && rowIndex < section.row + section.height && colIndex >= section.col && colIndex < section.col + section.width
+            );
+            return (
+              <div
+                key={`${rowIndex}-${colIndex}`}
+                role="gridcell"
+                aria-label={cell ? `Row ${rowIndex + 1}, Column ${colIndex + 1}: ${cell}` : `Row ${rowIndex + 1}, Column ${colIndex + 1}: empty`}
+                tabIndex={0}
+                className={`${gridStyling[gridSize].getCellClassName(rowIndex, colIndex, board, feedbackCell, completedSections)}${isHintCell ? ' ring-2 ring-yellow-400 animate-pulse' : ''}${isFlashing ? ' animate-section-flash' : ''}`}
+                onClick={() => handleCellClick(rowIndex, colIndex)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCellClick(rowIndex, colIndex); }}
+              >
+                {cell || (isHintCell ? <span className="opacity-30">{hintCell.fruit}</span> : null)}
+              </div>
+            );
+          })
         )}
       </div>
-      <div className="flex flex-wrap justify-center space-x-2 mb-4">
+      <div className="flex justify-center gap-1 mb-4 w-full" style={{ maxWidth: '500px' }}>
         {currentFruits.map(fruit => {
           const completed = isFruitComplete(fruit, board, solution);
           return (
-            <Button
+            <button
               key={fruit}
-              onClick={() => !completed && setSelectedEmoji(fruit)}
-              className={`w-10 h-10 text-xl relative ${
-                completed
-                  ? 'bg-green-100 opacity-70 cursor-default'
-                  : selectedEmoji === fruit
-                  ? 'bg-yellow-300'
-                  : 'bg-white'
-              }`}
+              onClick={() => !completed && setSelectedEmoji(selectedEmoji === fruit ? null : fruit)}
               disabled={completed}
+              aria-label={completed ? `${fruit} completed` : `Select ${fruit}`}
+              aria-pressed={selectedEmoji === fruit}
+              className={`relative flex items-center justify-center rounded-lg border-2 transition-colors ${
+                completed
+                  ? 'bg-green-100 opacity-70 cursor-default border-green-300'
+                  : selectedEmoji === fruit
+                  ? 'bg-yellow-300 border-yellow-400'
+                  : 'bg-white border-gray-200 hover:bg-yellow-100'
+              }`}
+              style={{
+                width: `${buttonSize}px`,
+                height: `${buttonSize}px`,
+                fontSize: `${buttonFontSize}px`,
+                padding: 0,
+              }}
             >
               {fruit}
               {completed && (
@@ -274,19 +336,35 @@ const EmojiSudoku = () => {
                   ✓
                 </span>
               )}
-            </Button>
+            </button>
           );
         })}
       </div>
-      <div className="mb-2 h-10 flex items-center justify-center space-x-1">
+      <div role="status" aria-live="polite" aria-label="Game status" className="mb-2 min-h-10 flex items-center justify-center space-x-1">
         {isComplete ? (
-          <span className="text-xl font-bold text-green-600 animate-bounce">
-            Congratulations! You solved the puzzle! 🎉
-          </span>
+          <div className="flex flex-col items-center gap-2">
+            <span className="font-bold text-green-600 animate-bounce whitespace-nowrap" style={{ fontSize: 'min(5vw, 1.25rem)' }}>
+              Congratulations! You solved the puzzle! 🎉
+            </span>
+            <button
+              onClick={() => generateNewPuzzle(difficulty)}
+              className="bg-green-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-600 transition"
+            >
+              Play Again
+            </button>
+          </div>
         ) : isGameOver ? (
-          <span className="text-xl font-bold text-red-600 animate-pulse">
-            Game Over! Too many mistakes! 😢
-          </span>
+          <div className="flex flex-col items-center gap-2">
+            <span className="font-bold text-red-600 animate-pulse whitespace-nowrap" style={{ fontSize: 'min(5vw, 1.25rem)' }}>
+              Game Over! Too many mistakes! 😢
+            </span>
+            <button
+              onClick={() => generateNewPuzzle(difficulty)}
+              className="bg-red-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-600 transition"
+            >
+              Try Again
+            </button>
+          </div>
         ) : (
           activeErrors.map(error => (
             <span
@@ -314,6 +392,14 @@ const EmojiSudoku = () => {
           </SelectContent>
         </Select>
         <Button onClick={() => generateNewPuzzle(difficulty)} className="bg-green-500 text-white">New Puzzle</Button>
+        {difficulty === 'easy' && (
+          <button
+            onClick={handleHint}
+            className="bg-yellow-400 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-yellow-500 transition"
+          >
+            Hint 💡
+          </button>
+        )}
       </div>
       <button
         onClick={() => setShowHowToPlay(true)}
@@ -321,6 +407,17 @@ const EmojiSudoku = () => {
       >
         How to play
       </button>
+      </div>
+      <footer className="w-full py-4 text-center text-sm text-gray-600 border-t border-yellow-300 mt-auto">
+        <a
+          href="https://famerlo.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-green-600 transition"
+        >
+          Famerlo - Family life, organized!
+        </a>
+      </footer>
       {showHowToPlay && <HowToPlay onClose={() => setShowHowToPlay(false)} />}
     </div>
   );

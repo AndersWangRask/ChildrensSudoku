@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+html, body, #root {
+  min-height: 100vh;
+  background-color: #fef9c3; /* yellow-100 */
+}
+
 .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 .grid-cols-9 { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+
+@keyframes section-flash {
+  0% { background-color: #fef9c3; }
+  25% { background-color: #fde047; }
+  50% { background-color: #facc15; }
+  75% { background-color: #fde047; }
+  100% { background-color: #fef9c3; }
+}
+.animate-section-flash {
+  animation: section-flash 0.8s ease-in-out;
+}
