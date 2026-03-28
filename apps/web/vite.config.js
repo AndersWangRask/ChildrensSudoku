@@ -5,6 +5,7 @@ import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/free-fruit-sudoku-for-kids/',
   plugins: [
     react(),
     VitePWA({
@@ -18,21 +19,21 @@ export default defineConfig({
         background_color: '#fef9c3',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
+        scope: '/free-fruit-sudoku-for-kids/',
+        start_url: '/free-fruit-sudoku-for-kids/',
         icons: [
           {
-            src: '/pwa-192x192.png',
+            src: '/free-fruit-sudoku-for-kids/pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: '/pwa-512x512.png',
+            src: '/free-fruit-sudoku-for-kids/pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png'
           },
           {
-            src: '/pwa-512x512.png',
+            src: '/free-fruit-sudoku-for-kids/pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
