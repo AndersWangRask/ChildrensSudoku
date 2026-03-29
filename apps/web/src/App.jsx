@@ -96,46 +96,64 @@ const getCellClassNameHelper = (
 };
 
 const HowToPlay = ({ onClose }) => (
-  <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div className="bg-yellow-50 rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6 shadow-xl">
-      <h2 className="text-2xl font-bold text-green-600 mb-4">How to Play 🍎</h2>
+  <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div className="bg-yellow-50 w-full h-full sm:max-w-md sm:max-h-[90vh] sm:rounded-2xl sm:m-4 shadow-xl flex flex-col">
+      <div className="flex items-center justify-between p-4 border-b border-yellow-200">
+        <h2 className="text-xl font-bold text-green-600">How to Play / About Us 🍎</h2>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none p-1" aria-label="Close">
+          &times;
+        </button>
+      </div>
 
-      <h3 className="text-lg font-bold text-green-700 mt-3 mb-1">The Rules</h3>
-      <ul className="list-disc pl-5 space-y-1 text-gray-700">
-        <li>Fill every empty cell with a fruit.</li>
-        <li>Each <b>row</b> must have every fruit exactly once.</li>
-        <li>Each <b>column</b> must have every fruit exactly once.</li>
-        <li>Each <b>box</b> (thick borders) must have every fruit exactly once.</li>
-      </ul>
+      <div className="flex-1 overflow-y-auto p-6">
+        <h3 className="text-lg font-bold text-green-700 mt-1 mb-1">The Rules</h3>
+        <ul className="list-disc pl-5 space-y-1 text-gray-700">
+          <li>Fill every empty cell with a fruit.</li>
+          <li>Each <b>row</b> must have every fruit exactly once.</li>
+          <li>Each <b>column</b> must have every fruit exactly once.</li>
+          <li>Each <b>box</b> (thick borders) must have every fruit exactly once.</li>
+        </ul>
 
-      <h3 className="text-lg font-bold text-green-700 mt-4 mb-1">How to Play</h3>
-      <ol className="list-decimal pl-5 space-y-1 text-gray-700">
-        <li>Tap a <b>fruit button</b> below the board to pick it up.</li>
-        <li>Tap an <b>empty cell</b> on the board to place it.</li>
-        <li>If correct, the fruit stays. If wrong, you get a sad face!</li>
-        <li>When all cells for a fruit are filled, its button gets a checkmark.</li>
-      </ol>
+        <h3 className="text-lg font-bold text-green-700 mt-4 mb-1">How to Play</h3>
+        <ol className="list-decimal pl-5 space-y-1 text-gray-700">
+          <li>Tap a <b>fruit button</b> below the board to pick it up.</li>
+          <li>Tap an <b>empty cell</b> on the board to place it.</li>
+          <li>If correct, the fruit stays. If wrong, you get a sad face!</li>
+          <li>When all cells for a fruit are filled, its button gets a checkmark.</li>
+        </ol>
 
-      <h3 className="text-lg font-bold text-green-700 mt-4 mb-1">Watch Out!</h3>
-      <ul className="list-disc pl-5 space-y-1 text-gray-700">
-        <li>Each mistake adds a sad emoji that lasts 30 seconds.</li>
-        <li>If you have 5 sad emojis at the same time, it's game over!</li>
-        <li>Press <b>New Puzzle</b> to start fresh any time.</li>
-      </ul>
+        <h3 className="text-lg font-bold text-green-700 mt-4 mb-1">Watch Out!</h3>
+        <ul className="list-disc pl-5 space-y-1 text-gray-700">
+          <li>Each mistake adds a sad emoji that lasts 30 seconds.</li>
+          <li>If you have 5 sad emojis at the same time, it's game over!</li>
+          <li>Press <b>New Puzzle</b> to start fresh any time.</li>
+        </ul>
 
-      <h3 className="text-lg font-bold text-green-700 mt-4 mb-1">Difficulty</h3>
-      <ul className="list-disc pl-5 space-y-1 text-gray-700">
-        <li><b>Easy</b> — 4x4 grid (great for beginners!)</li>
-        <li><b>Medium</b> — 6x6 grid</li>
-        <li><b>Hard</b> — 9x9 grid (classic Sudoku size)</li>
-      </ul>
+        <h3 className="text-lg font-bold text-green-700 mt-4 mb-1">Difficulty</h3>
+        <ul className="list-disc pl-5 space-y-1 text-gray-700">
+          <li><b>Easy</b> — 4x4 grid (great for beginners!)</li>
+          <li><b>Medium</b> — 6x6 grid</li>
+          <li><b>Hard</b> — 9x9 grid (classic Sudoku size)</li>
+        </ul>
 
-      <button
-        onClick={onClose}
-        className="mt-6 w-full bg-green-500 text-white font-bold py-3 rounded-lg text-lg hover:bg-green-600 transition"
-      >
-        Got it!
-      </button>
+        <h3 className="text-lg font-bold text-green-700 mt-6 mb-1">About Famerlo</h3>
+        <p className="text-gray-700 mt-2">Free Fruit Sudoku for Kids is brought to you by Famerlo.</p>
+        <p className="text-gray-700 mt-2">Famerlo is an AI-powered family assistant that helps busy parents manage their children's activities, schedules, and daily logistics — all through natural conversation.</p>
+        <p className="text-gray-700 mt-2">It integrates with Google Calendar, Apple Calendar, and Microsoft Outlook, and can even translate school messages and activity notes for families new to a country.</p>
+        <p className="text-gray-700 mt-2">Famerlo is GDPR-compliant, with family data hosted in Scandinavia and double-encrypted.</p>
+        <p className="text-gray-700 mt-2">
+          Visit <a href="https://famerlo.com" target="_blank" rel="noopener noreferrer" className="text-green-600 underline hover:text-green-800">famerlo.com</a> to learn more
+        </p>
+      </div>
+
+      <div className="p-4 border-t border-yellow-200">
+        <button
+          onClick={onClose}
+          className="w-full bg-green-500 text-white font-bold py-3 rounded-lg text-lg hover:bg-green-600 transition"
+        >
+          Got it!
+        </button>
+      </div>
     </div>
   </div>
 );
@@ -405,17 +423,26 @@ const EmojiSudoku = () => {
         onClick={() => setShowHowToPlay(true)}
         className="mt-2 text-green-600 underline hover:text-green-800 text-sm"
       >
-        How to play
+        How to play / About us
       </button>
       </div>
-      <footer className="w-full py-4 text-center text-sm text-gray-600 border-t border-yellow-300 mt-auto">
+      <footer className="w-full py-4 border-t border-yellow-300 mt-auto" style={{ backgroundColor: '#FFFBF5' }}>
         <a
           href="https://famerlo.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:text-green-600 transition"
+          className="block text-center text-sm text-gray-600 hover:text-gray-800 transition"
         >
-          Famerlo - Family life, organized!
+          <span className="font-bold inline-flex items-center justify-center gap-1">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="inline-block" style={{ width: '1.2em', height: '1.2em', verticalAlign: 'middle' }}>
+              <circle cx="7" cy="12" r="2" fill="#E8893C" />
+              <circle cx="12" cy="12" r="2" fill="#E8893C" opacity="0.7" />
+              <circle cx="17" cy="12" r="2" fill="#E8893C" opacity="0.4" />
+            </svg>
+            Famerlo - Family life, organized!
+          </span><br />
+          AI-powered family assistant for busy parents<br />
+          <span className="underline">Click here to learn more</span>
         </a>
       </footer>
       {showHowToPlay && <HowToPlay onClose={() => setShowHowToPlay(false)} />}

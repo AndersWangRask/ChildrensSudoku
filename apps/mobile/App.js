@@ -135,9 +135,13 @@ function HowToPlay({ visible, onClose }) {
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="fullScreen">
       <SafeAreaView style={howToStyles.container}>
+        <View style={howToStyles.header}>
+          <Text style={howToStyles.title}>How to Play / About Us 🍎</Text>
+          <TouchableOpacity onPress={onClose} style={howToStyles.closeX}>
+            <Text style={howToStyles.closeXText}>&times;</Text>
+          </TouchableOpacity>
+        </View>
         <ScrollView contentContainerStyle={howToStyles.content}>
-          <Text style={howToStyles.title}>How to Play 🍎</Text>
-
           <Text style={howToStyles.sectionTitle}>The Rules</Text>
           <Text style={howToStyles.bullet}>• Fill every empty cell with a fruit.</Text>
           <Text style={howToStyles.bullet}>• Each row must have every fruit exactly once.</Text>
@@ -160,10 +164,23 @@ function HowToPlay({ visible, onClose }) {
           <Text style={howToStyles.bullet}>• Medium — 6x6 grid</Text>
           <Text style={howToStyles.bullet}>• Hard — 9x9 grid (classic Sudoku size)</Text>
 
+          <Text style={howToStyles.sectionTitle}>About Famerlo</Text>
+          <Text style={howToStyles.bodyText}>Free Fruit Sudoku for Kids is brought to you by Famerlo.</Text>
+          <Text style={howToStyles.bodyText}>Famerlo is an AI-powered family assistant that helps busy parents manage their children's activities, schedules, and daily logistics — all through natural conversation.</Text>
+          <Text style={howToStyles.bodyText}>It integrates with Google Calendar, Apple Calendar, and Microsoft Outlook, and can even translate school messages and activity notes for families new to a country.</Text>
+          <Text style={howToStyles.bodyText}>Famerlo is GDPR-compliant, with family data hosted in Scandinavia and double-encrypted.</Text>
+          <Text
+            style={howToStyles.link}
+            onPress={() => Linking.openURL('https://famerlo.com')}
+          >
+            Visit famerlo.com to learn more
+          </Text>
+        </ScrollView>
+        <View style={howToStyles.footer}>
           <TouchableOpacity style={howToStyles.closeButton} onPress={onClose}>
             <Text style={howToStyles.closeButtonText}>Got it!</Text>
           </TouchableOpacity>
-        </ScrollView>
+        </View>
       </SafeAreaView>
     </Modal>
   );
@@ -174,15 +191,32 @@ const howToStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fefce8',
   },
-  content: {
-    padding: 24,
-    paddingBottom: 40,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#fde68a',
   },
   title: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#16a34a',
-    marginBottom: 20,
+    flex: 1,
+  },
+  closeX: {
+    padding: 8,
+  },
+  closeXText: {
+    fontSize: 28,
+    color: '#9ca3af',
+    lineHeight: 28,
+  },
+  content: {
+    padding: 24,
+    paddingBottom: 20,
   },
   sectionTitle: {
     fontSize: 20,
@@ -197,11 +231,28 @@ const howToStyles = StyleSheet.create({
     lineHeight: 24,
     paddingLeft: 8,
   },
+  bodyText: {
+    fontSize: 16,
+    color: '#374151',
+    lineHeight: 24,
+    marginTop: 8,
+  },
+  link: {
+    fontSize: 16,
+    color: '#16a34a',
+    lineHeight: 24,
+    marginTop: 8,
+    textDecorationLine: 'underline',
+  },
+  footer: {
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#fde68a',
+  },
   closeButton: {
     backgroundColor: '#16a34a',
     paddingVertical: 16,
     borderRadius: 12,
-    marginTop: 30,
     alignItems: 'center',
   },
   closeButtonText: {
@@ -536,17 +587,21 @@ export default function App() {
           style={styles.howToPlayLink}
           onPress={() => setShowHowToPlay(true)}
         >
-          <Text style={styles.howToPlayText}>How to play</Text>
+          <Text style={styles.howToPlayText}>How to play / About us</Text>
         </TouchableOpacity>
       </ScrollView>
-      <View style={styles.footer}>
-        <Text
-          style={styles.footerText}
-          onPress={() => Linking.openURL('https://famerlo.com')}
-        >
-          Famerlo - Family life, organized!
-        </Text>
-      </View>
+      <TouchableOpacity style={styles.footer} onPress={() => Linking.openURL('https://famerlo.com')}>
+        <View style={styles.footerTitleRow}>
+          <View style={styles.famerloLogo}>
+            <View style={[styles.logoDot, { opacity: 1 }]} />
+            <View style={[styles.logoDot, { opacity: 0.7 }]} />
+            <View style={[styles.logoDot, { opacity: 0.4 }]} />
+          </View>
+          <Text style={styles.footerBold}>Famerlo - Family life, organized!</Text>
+        </View>
+        <Text style={styles.footerText}>AI-powered family assistant for busy parents</Text>
+        <Text style={styles.footerLink}>Click here to learn more</Text>
+      </TouchableOpacity>
       <HowToPlay visible={showHowToPlay} onClose={() => setShowHowToPlay(false)} />
     </SafeAreaView>
   );
@@ -742,9 +797,34 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#facc15',
     alignItems: 'center',
+    backgroundColor: '#FFFBF5',
+  },
+  footerTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  famerloLogo: {
+    flexDirection: 'row',
+    gap: 3,
+  },
+  logoDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: '#E8893C',
+  },
+  footerBold: {
+    fontSize: 13,
+    color: '#6b7280',
+    fontWeight: 'bold',
   },
   footerText: {
-    fontSize: 13,
+    fontSize: 12,
+    color: '#6b7280',
+  },
+  footerLink: {
+    fontSize: 12,
     color: '#6b7280',
     textDecorationLine: 'underline',
   },
