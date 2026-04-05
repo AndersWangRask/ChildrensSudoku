@@ -111,6 +111,12 @@ python3 scripts/generate-icons.py        # Mobile app icons + splash
 python3 scripts/generate-web-assets.py   # PWA icons + og-image
 ```
 
+## Shared Documentation
+
+See `docs/README.md` for a full index. Key documents:
+
+- [Monorepo Layout](docs/monorepo-layout.md) — Directory structure, conventions, and rationale for how the repo is organized. Covers apps, packages, tools, puzzles, and docs directories.
+
 ## Important Notes
 - Mobile is the primary product; web is secondary
 - Keep both apps functional throughout all changes
