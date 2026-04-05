@@ -1,7 +1,14 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
-  DIRS, MAX_LIVES, conf, makePuzzle, pathClear, calcSlide, slideDuration,
+  GRID_SIZES, MAX_ACTIVE_ERRORS, ERROR_DURATION_MS,
+  makePuzzle, pathClear, calcSlide, slideDuration,
 } from "@famerlo/arrowpuzzle-core";
+
+const SAD_EMOJIS = ['😢', '😭', '😤', '😠', '😡', '🤬', '😰', '😨', '😱', '😖', '😣', '😞', '😩', '🥺', '😿'];
+
+function randomSadEmoji() {
+  return SAD_EMOJIS[Math.floor(Math.random() * SAD_EMOJIS.length)];
+}
 
 const cellColor = (c, cols, r, rows) => {
   const t = cols > 1 ? c / (cols - 1) : 0;
@@ -30,53 +37,132 @@ const Arrow = ({ dir }) => {
   );
 };
 
-const Heart = ({ filled }) => (
-  <svg viewBox="0 0 24 24" width="28" height="28" style={{ margin: "0 2px", filter: filled ? "drop-shadow(0 0 4px rgba(239,68,68,0.5))" : "none", transition: "all 0.3s" }}>
-    <path
-      d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-      fill={filled ? "#ef4444" : "rgba(0,0,0,0.15)"}
-      style={{ transition: "fill 0.3s" }}
-    />
-  </svg>
+const HowToPlay = ({ onClose }) => (
+  <div style={{
+    position: "fixed", inset: 0,
+    background: "rgba(0,0,0,0.7)",
+    backdropFilter: "blur(8px)",
+    zIndex: 200,
+    display: "flex", alignItems: "center", justifyContent: "center",
+  }}>
+    <div style={{
+      background: "linear-gradient(145deg, #1e293b, #0f172a)",
+      width: "100%", height: "100%",
+      maxWidth: 480, maxHeight: "90vh",
+      borderRadius: window.innerWidth >= 640 ? 20 : 0,
+      margin: window.innerWidth >= 640 ? 16 : 0,
+      display: "flex", flexDirection: "column",
+      color: "white",
+      boxShadow: "0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1)",
+    }}>
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "16px 20px",
+        borderBottom: "1px solid rgba(255,255,255,0.1)",
+      }}>
+        <span style={{ fontSize: 18, fontWeight: 700 }}>How to Play / About Us</span>
+        <button onClick={onClose} style={{
+          background: "none", border: "none", color: "rgba(255,255,255,0.5)",
+          fontSize: 28, cursor: "pointer", padding: "0 4px", lineHeight: 1,
+        }}>&times;</button>
+      </div>
+
+      <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px" }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: "#60a5fa", marginBottom: 8 }}>The Goal</h3>
+        <p style={{ opacity: 0.8, marginBottom: 16, lineHeight: 1.6 }}>
+          Clear every arrow tile from the board by tapping them. An arrow can only be removed if its path to the edge of the board is completely clear.
+        </p>
+
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: "#60a5fa", marginBottom: 8 }}>How to Play</h3>
+        <ul style={{ opacity: 0.8, lineHeight: 1.8, paddingLeft: 20, listStyleType: "disc", marginBottom: 16 }}>
+          <li>Tap an arrow tile to slide it off the board.</li>
+          <li>The arrow slides in the direction it points.</li>
+          <li>If another tile is blocking the path, the tap is a mistake.</li>
+          <li>Removing a tile may open up new paths for other tiles.</li>
+          <li>Use the <b>Hint</b> button to highlight a tile that can be removed.</li>
+        </ul>
+
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: "#60a5fa", marginBottom: 8 }}>Mistakes</h3>
+        <ul style={{ opacity: 0.8, lineHeight: 1.8, paddingLeft: 20, listStyleType: "disc", marginBottom: 16 }}>
+          <li>Each mistake shows an unhappy emoji that lasts 30 seconds.</li>
+          <li>If you have 5 unhappy emojis at the same time, it's game over!</li>
+          <li>Take your time — there is no timer.</li>
+        </ul>
+
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: "#60a5fa", marginBottom: 8 }}>Puzzle Size</h3>
+        <ul style={{ opacity: 0.8, lineHeight: 1.8, paddingLeft: 20, listStyleType: "disc", marginBottom: 16 }}>
+          {GRID_SIZES.map(s => (
+            <li key={s.label}><b>{s.label}</b> — {s.rows} x {s.cols} grid ({s.rows * s.cols} tiles)</li>
+          ))}
+        </ul>
+
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: "#60a5fa", marginTop: 24, marginBottom: 8 }}>About Famerlo</h3>
+        <p style={{ opacity: 0.8, lineHeight: 1.6, marginBottom: 8 }}>
+          Arrow Puzzle is brought to you by Famerlo.
+        </p>
+        <p style={{ opacity: 0.8, lineHeight: 1.6, marginBottom: 8 }}>
+          Famerlo is an AI-powered family assistant that helps busy parents manage their children's activities, schedules, and daily logistics — all through natural conversation.
+        </p>
+        <p style={{ opacity: 0.8, lineHeight: 1.6, marginBottom: 8 }}>
+          It integrates with Google Calendar, Apple Calendar, and Microsoft Outlook, and can even translate school messages and activity notes for families new to a country.
+        </p>
+        <p style={{ opacity: 0.8, lineHeight: 1.6, marginBottom: 8 }}>
+          Famerlo is GDPR-compliant, with family data hosted in Scandinavia and double-encrypted.
+        </p>
+        <p style={{ opacity: 0.8, lineHeight: 1.6 }}>
+          Visit <a href="https://famerlo.com" target="_blank" rel="noopener noreferrer" style={{ color: "#60a5fa", textDecoration: "underline" }}>famerlo.com</a> to learn more.
+        </p>
+      </div>
+
+      <div style={{ padding: 16, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+        <button onClick={onClose} style={{
+          width: "100%",
+          background: "linear-gradient(135deg, #3b82f6, #2563eb)",
+          border: "none", borderRadius: 12, padding: "14px",
+          color: "white", fontSize: 16, fontWeight: 700, cursor: "pointer",
+        }}>Got it!</button>
+      </div>
+    </div>
+  </div>
 );
 
 export default function ArrowPuzzle() {
-  const [level, setLevel] = useState(1);
+  const [gridSizeIndex, setGridSizeIndex] = useState(0);
   const [grid, setGrid] = useState([]);
-  const [lives, setLives] = useState(MAX_LIVES);
   const [phase, setPhase] = useState("playing");
-  const [score, setScore] = useState(0);
   const [flying, setFlying] = useState({});
   const [shaking, setShaking] = useState({});
   const [hinted, setHinted] = useState(null);
-  const [combo, setCombo] = useState(0);
-  const [cleared, setCleared] = useState(0);
-  const [totalArrows, setTotalArrows] = useState(0);
+  const [activeErrors, setActiveErrors] = useState([]);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
+  const errorTimersRef = useRef([]);
 
-  const startLevel = useCallback((lvl) => {
-    const { rows, cols } = conf(lvl);
-    const g = makePuzzle(rows, cols);
+  const { rows, cols } = GRID_SIZES[gridSizeIndex];
+
+  const startPuzzle = useCallback((sizeIdx) => {
+    const { rows: r, cols: c } = GRID_SIZES[sizeIdx];
+    const g = makePuzzle(r, c);
     setGrid(g);
-    setLives(MAX_LIVES);
     setPhase("playing");
     setFlying({});
     setShaking({});
     setHinted(null);
-    setCombo(0);
-    setCleared(0);
-    setTotalArrows(rows * cols);
+    setActiveErrors([]);
+    errorTimersRef.current.forEach(t => clearTimeout(t));
+    errorTimersRef.current = [];
   }, []);
 
-  useEffect(() => { startLevel(level); }, [level, startLevel]);
+  useEffect(() => { startPuzzle(gridSizeIndex); }, [gridSizeIndex, startPuzzle]);
 
-  const remaining = useMemo(() => grid.flat().filter(Boolean).length - Object.keys(flying).length, [grid, flying]);
+  const remaining = useMemo(() =>
+    grid.flat().filter(Boolean).length - Object.keys(flying).length,
+    [grid, flying]
+  );
 
-  const { rows, cols } = conf(level);
   const gap = 5;
   const maxW = Math.min(480, typeof window !== "undefined" ? window.innerWidth - 32 : 480);
   const cellSize = Math.floor((maxW - gap * (cols - 1)) / cols);
 
-  // Effective grid: treat flying tiles as already gone
   const effectiveGrid = useMemo(() =>
     grid.map(row => row.map(cell => (cell && flying[cell.id]) ? null : cell)),
     [grid, flying]
@@ -90,21 +176,34 @@ export default function ArrowPuzzle() {
     return null;
   }, [effectiveGrid]);
 
+  const addError = useCallback(() => {
+    const id = Date.now() + Math.random();
+    const emoji = randomSadEmoji();
+
+    setActiveErrors(prev => {
+      const updated = [...prev, { id, emoji }];
+      if (updated.length >= MAX_ACTIVE_ERRORS) {
+        setTimeout(() => setPhase("gameOver"), 400);
+      }
+      return updated;
+    });
+
+    const timer = setTimeout(() => {
+      setActiveErrors(prev => prev.filter(e => e.id !== id));
+    }, ERROR_DURATION_MS);
+    errorTimersRef.current.push(timer);
+  }, []);
+
   const handleTap = useCallback((r, c) => {
     if (phase !== "playing") return;
     const cell = grid[r][c];
     if (!cell || flying[cell.id]) return;
 
-    const { rows: R, cols: C } = conf(level);
-
     if (pathClear(effectiveGrid, r, c)) {
       const id = cell.id;
-      const slide = calcSlide(cell.dir, r, c, R, C, cellSize, gap);
+      const slide = calcSlide(cell.dir, r, c, rows, cols, cellSize, gap);
       const dur = slideDuration(slide.cells);
       setFlying((p) => ({ ...p, [id]: { ...slide, dir: cell.dir, dur, started: false } }));
-      setCombo((p) => p + 1);
-      setScore((p) => p + 10 * (combo + 1));
-      setCleared((p) => p + 1);
       setHinted(null);
 
       setTimeout(() => {
@@ -112,23 +211,20 @@ export default function ArrowPuzzle() {
           const ng = prev.map((row) => [...row]);
           ng[r][c] = null;
           const left = ng.flat().filter(Boolean).length;
-          if (left === 0) setTimeout(() => setPhase("levelComplete"), 100);
+          if (left === 0) setTimeout(() => setPhase("complete"), 100);
           return ng;
         });
         setFlying((p) => { const n = { ...p }; delete n[id]; return n; });
       }, dur + 50);
     } else {
       setShaking((p) => ({ ...p, [cell.id]: true }));
-      setCombo(0);
       setHinted(null);
-      const nl = lives - 1;
-      setLives(nl);
-      if (nl <= 0) setTimeout(() => setPhase("gameOver"), 400);
+      addError();
       setTimeout(() => setShaking((p) => { const n = { ...p }; delete n[cell.id]; return n; }), 600);
     }
-  }, [phase, grid, flying, effectiveGrid, lives, combo, level, cellSize, gap]);
+  }, [phase, grid, flying, effectiveGrid, rows, cols, cellSize, gap, addError]);
 
-  // Two-phase animation: after rendering at initial position, trigger the slide on the next frame
+  // Two-phase animation
   useEffect(() => {
     const unstarted = Object.entries(flying).filter(([_, v]) => !v.started);
     if (unstarted.length === 0) return;
@@ -161,12 +257,10 @@ export default function ArrowPuzzle() {
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      justifyContent: "center",
       background: "linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
       fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
       padding: "16px",
       userSelect: "none",
-      overflow: "hidden",
     }}>
       <style>{`
         @keyframes shake {
@@ -194,38 +288,116 @@ export default function ArrowPuzzle() {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-8px); }
         }
+        @keyframes bounce-error {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
         .cell-btn { cursor: pointer; border: none; outline: none; padding: 0; }
         .cell-btn:active { transform: scale(0.92); }
       `}</style>
 
-      {/* Header */}
+      {/* Title */}
+      <h1 style={{
+        color: "white", fontSize: 20, fontWeight: 800,
+        marginBottom: 12, opacity: 0.9, letterSpacing: 1,
+      }}>Arrow Puzzle</h1>
+
+      {/* Grid size selector + New Puzzle */}
       <div style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        width: gridW, marginBottom: 16, color: "white",
+        display: "flex", gap: 8, marginBottom: 12, alignItems: "center",
+        flexWrap: "wrap", justifyContent: "center",
       }}>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: 13, opacity: 0.6, letterSpacing: 2, textTransform: "uppercase" }}>Level</span>
-          <span style={{ fontSize: 32, fontWeight: 800, lineHeight: 1 }}>{level}</span>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <div style={{ display: "flex", marginBottom: 4 }}>
-            {Array.from({ length: MAX_LIVES }).map((_, i) => <Heart key={i} filled={i < lives} />)}
-          </div>
-          <span style={{ fontSize: 12, opacity: 0.5 }}>{remaining} left</span>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-          <span style={{ fontSize: 13, opacity: 0.6, letterSpacing: 2, textTransform: "uppercase" }}>Score</span>
-          <span style={{ fontSize: 32, fontWeight: 800, lineHeight: 1 }}>{score}</span>
-        </div>
+        <select
+          value={gridSizeIndex}
+          onChange={(e) => setGridSizeIndex(Number(e.target.value))}
+          style={{
+            background: "rgba(255,255,255,0.1)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            color: "white", borderRadius: 8, padding: "8px 12px",
+            fontSize: 14, cursor: "pointer",
+          }}
+        >
+          {GRID_SIZES.map((s, i) => (
+            <option key={s.label} value={i} style={{ background: "#1e293b" }}>
+              {s.label} ({s.rows}x{s.cols})
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={() => startPuzzle(gridSizeIndex)}
+          style={{
+            background: "rgba(255,255,255,0.1)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            color: "white", borderRadius: 8, padding: "8px 16px",
+            fontSize: 14, fontWeight: 600, cursor: "pointer",
+          }}
+        >
+          New Puzzle
+        </button>
       </div>
 
-      {/* Combo indicator */}
-      {combo > 1 && (
-        <div style={{
-          color: "#fbbf24", fontSize: 14, fontWeight: 700, marginBottom: 8,
-          animation: "slide-up 0.25s ease-out",
-        }}>
-          {combo}x Combo! +{10 * combo} pts
+      {/* Error emojis / status area */}
+      <div style={{
+        minHeight: 40, display: "flex", alignItems: "center",
+        justifyContent: "center", gap: 6, marginBottom: 8,
+      }}>
+        {phase === "complete" ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+            <span style={{
+              color: "#22c55e", fontWeight: 800, fontSize: 18,
+              whiteSpace: "nowrap",
+            }}>
+              Puzzle Complete! 🎉
+            </span>
+            <button
+              onClick={() => startPuzzle(gridSizeIndex)}
+              style={{
+                background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                border: "none", borderRadius: 10, padding: "10px 28px",
+                color: "white", fontSize: 15, fontWeight: 700, cursor: "pointer",
+              }}
+            >
+              Play Again
+            </button>
+          </div>
+        ) : phase === "gameOver" ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+            <span style={{
+              color: "#ef4444", fontWeight: 800, fontSize: 16,
+              whiteSpace: "nowrap",
+            }}>
+              Game Over! Too many mistakes! 😢
+            </span>
+            <button
+              onClick={() => startPuzzle(gridSizeIndex)}
+              style={{
+                background: "linear-gradient(135deg, #f59e0b, #d97706)",
+                border: "none", borderRadius: 10, padding: "10px 28px",
+                color: "white", fontSize: 15, fontWeight: 700, cursor: "pointer",
+              }}
+            >
+              Try Again
+            </button>
+          </div>
+        ) : (
+          activeErrors.map(error => (
+            <span
+              key={error.id}
+              style={{
+                fontSize: 24,
+                animation: "bounce-error 1s infinite",
+              }}
+            >
+              {error.emoji}
+            </span>
+          ))
+        )}
+      </div>
+
+      {/* Remaining tiles indicator */}
+      {phase === "playing" && (
+        <div style={{ color: "white", opacity: 0.5, fontSize: 12, marginBottom: 8 }}>
+          {remaining} tiles left
         </div>
       )}
 
@@ -302,7 +474,7 @@ export default function ArrowPuzzle() {
       </div>
 
       {/* Controls */}
-      <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
+      <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
         <button
           onClick={useHint}
           disabled={phase !== "playing"}
@@ -315,129 +487,52 @@ export default function ArrowPuzzle() {
             transition: "all 0.2s",
           }}
         >
-          💡 Hint
-        </button>
-        <button
-          onClick={() => startLevel(level)}
-          style={{
-            background: "rgba(255,255,255,0.1)",
-            border: "1px solid rgba(255,255,255,0.2)",
-            color: "white", borderRadius: 10, padding: "10px 24px",
-            fontSize: 14, fontWeight: 600, cursor: "pointer",
-            transition: "all 0.2s",
-          }}
-        >
-          🔄 Restart
+          Hint
         </button>
       </div>
 
-      {/* Level Complete Overlay */}
-      {phase === "levelComplete" && (
-        <div style={{
-          position: "fixed", inset: 0,
-          background: "rgba(0,0,0,0.7)",
-          backdropFilter: "blur(8px)",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-          zIndex: 100, animation: "slide-up 0.4s ease-out",
-        }}>
-          <div style={{
-            background: "linear-gradient(145deg, #1e293b, #0f172a)",
-            borderRadius: 24, padding: "40px 48px",
-            textAlign: "center", color: "white",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1)",
-            maxWidth: 340,
-          }}>
-            <div style={{ fontSize: 48, marginBottom: 8, animation: "float 2s infinite" }}>🎉</div>
-            <h2 style={{ fontSize: 28, fontWeight: 800, margin: "0 0 4px" }}>Level {level} Clear!</h2>
-            <p style={{ opacity: 0.6, margin: "0 0 20px", fontSize: 14 }}>
-              Score: {score} · Lives remaining: {lives}
-            </p>
-            <div style={{
-              display: "flex", gap: 8, marginBottom: 12,
-              justifyContent: "center",
-            }}>
-              {Array.from({ length: 3 }).map((_, i) => (
-                <span key={i} style={{
-                  fontSize: 28,
-                  filter: i < lives ? "none" : "grayscale(1) opacity(0.3)",
-                  animation: i < lives ? `pop-in 0.3s ease-out ${i * 150}ms both` : "none",
-                }}>⭐</span>
-              ))}
-            </div>
-            <button
-              onClick={() => setLevel((l) => l + 1)}
-              style={{
-                background: "linear-gradient(135deg, #22c55e, #16a34a)",
-                border: "none", borderRadius: 14, padding: "14px 40px",
-                color: "white", fontSize: 18, fontWeight: 700,
-                cursor: "pointer", boxShadow: "0 4px 15px rgba(34,197,94,0.4)",
-                transition: "transform 0.15s",
-                width: "100%",
-              }}
-              onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.96)")}
-              onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-            >
-              Next Level →
-            </button>
-          </div>
-        </div>
-      )}
+      {/* How to play link */}
+      <button
+        onClick={() => setShowHowToPlay(true)}
+        style={{
+          background: "none", border: "none",
+          color: "rgba(255,255,255,0.5)", fontSize: 13,
+          cursor: "pointer", marginTop: 12,
+          textDecoration: "underline",
+        }}
+      >
+        How to play / About us
+      </button>
 
-      {/* Game Over Overlay */}
-      {phase === "gameOver" && (
-        <div style={{
-          position: "fixed", inset: 0,
-          background: "rgba(0,0,0,0.7)",
-          backdropFilter: "blur(8px)",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-          zIndex: 100, animation: "slide-up 0.4s ease-out",
-        }}>
-          <div style={{
-            background: "linear-gradient(145deg, #1e293b, #0f172a)",
-            borderRadius: 24, padding: "40px 48px",
-            textAlign: "center", color: "white",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1)",
-            maxWidth: 340,
-          }}>
-            <div style={{ fontSize: 48, marginBottom: 8 }}>💔</div>
-            <h2 style={{ fontSize: 28, fontWeight: 800, margin: "0 0 4px" }}>Game Over</h2>
-            <p style={{ opacity: 0.6, margin: "0 0 8px", fontSize: 14 }}>
-              Reached Level {level} · Final Score: {score}
-            </p>
-            <p style={{ opacity: 0.4, margin: "0 0 24px", fontSize: 13 }}>
-              {cleared}/{totalArrows} arrows cleared
-            </p>
-            <div style={{ display: "flex", gap: 10, flexDirection: "column" }}>
-              <button
-                onClick={() => startLevel(level)}
-                style={{
-                  background: "linear-gradient(135deg, #f59e0b, #d97706)",
-                  border: "none", borderRadius: 14, padding: "14px 40px",
-                  color: "white", fontSize: 16, fontWeight: 700,
-                  cursor: "pointer", boxShadow: "0 4px 15px rgba(245,158,11,0.3)",
-                  width: "100%",
-                }}
-              >
-                🔄 Retry Level {level}
-              </button>
-              <button
-                onClick={() => { setScore(0); setLevel(1); }}
-                style={{
-                  background: "rgba(255,255,255,0.1)",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  borderRadius: 14, padding: "12px 40px",
-                  color: "white", fontSize: 14, fontWeight: 600,
-                  cursor: "pointer", width: "100%",
-                }}
-              >
-                Start Over
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Famerlo footer */}
+      <footer style={{
+        width: "100%", marginTop: "auto", paddingTop: 16,
+        borderTop: "1px solid rgba(255,255,255,0.1)",
+      }}>
+        <a
+          href="https://famerlo.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "block", textAlign: "center",
+            fontSize: 13, color: "rgba(255,255,255,0.5)",
+            textDecoration: "none", padding: "12px 0",
+          }}
+        >
+          <span style={{ fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ width: "1.2em", height: "1.2em", verticalAlign: "middle" }}>
+              <circle cx="7" cy="12" r="2" fill="#E8893C" />
+              <circle cx="12" cy="12" r="2" fill="#E8893C" opacity="0.7" />
+              <circle cx="17" cy="12" r="2" fill="#E8893C" opacity="0.4" />
+            </svg>
+            Famerlo - Family life, organized!
+          </span><br />
+          AI-powered family assistant for busy parents<br />
+          <span style={{ textDecoration: "underline" }}>Click here to learn more</span>
+        </a>
+      </footer>
+
+      {showHowToPlay && <HowToPlay onClose={() => setShowHowToPlay(false)} />}
     </div>
   );
 }

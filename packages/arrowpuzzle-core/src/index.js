@@ -1,8 +1,8 @@
 export {
   DIRS,
-  MAX_LIVES,
-  LEVELS,
-  conf,
+  MAX_ACTIVE_ERRORS,
+  ERROR_DURATION_MS,
+  GRID_SIZES,
   pathClearDir,
   pathClear,
   shuffle,

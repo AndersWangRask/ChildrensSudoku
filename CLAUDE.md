@@ -63,6 +63,7 @@ python3 scripts/generate-web-assets.py   # PWA icons + og-image
 
 See `docs/README.md` for a full index. Key documents:
 
+- [Game Design Philosophy](docs/game-design-philosophy.md) — Core design principles all games must follow: stress-free gameplay, the error emoji system, no IAP, no timers, user-chosen difficulty, and advertising guidelines. **Read this before designing or modifying any game.**
 - [Monorepo Layout](docs/monorepo-layout.md) — Directory structure, conventions, and rationale for how the repo is organized. Covers apps, packages, tools, puzzles, and docs directories.
 
 ## Important Notes

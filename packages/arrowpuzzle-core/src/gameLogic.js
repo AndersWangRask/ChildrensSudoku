@@ -2,21 +2,15 @@
 // Pure game logic: no React, no UI, no DOM dependencies.
 
 export const DIRS = ["up", "down", "left", "right"];
-export const MAX_LIVES = 3;
+export const MAX_ACTIVE_ERRORS = 5;
+export const ERROR_DURATION_MS = 30000;
 
-export const LEVELS = [
-  { rows: 3, cols: 4 },
-  { rows: 4, cols: 5 },
-  { rows: 5, cols: 5 },
-  { rows: 5, cols: 6 },
-  { rows: 6, cols: 6 },
-  { rows: 6, cols: 7 },
-  { rows: 7, cols: 7 },
-  { rows: 8, cols: 7 },
-  { rows: 9, cols: 7 },
+export const GRID_SIZES = [
+  { label: "Small", rows: 3, cols: 4 },
+  { label: "Medium", rows: 5, cols: 5 },
+  { label: "Large", rows: 6, cols: 7 },
+  { label: "Extra Large", rows: 9, cols: 7 },
 ];
-
-export const conf = (lvl) => LEVELS[Math.min(lvl - 1, LEVELS.length - 1)];
 
 // Check if path is clear for a given direction
 export const pathClearDir = (g, r, c, dir) => {
