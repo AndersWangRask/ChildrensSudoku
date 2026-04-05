@@ -105,6 +105,12 @@ npm run dev:mobile     # Start Expo dev server
 npm install            # Install all workspace dependencies
 ```
 
+### Arrow Puzzle Development
+```bash
+npm run dev:arrowpuzzle     # Start Arrow Puzzle dev server (port 5192)
+npm run build:arrowpuzzle   # Build Arrow Puzzle web app
+```
+
 ### Generate Assets
 ```bash
 python3 scripts/generate-icons.py        # Mobile app icons + splash

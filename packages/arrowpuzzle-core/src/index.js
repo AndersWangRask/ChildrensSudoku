@@ -1,0 +1,18 @@
+export {
+  DIRS,
+  MAX_LIVES,
+  LEVELS,
+  conf,
+  pathClearDir,
+  pathClear,
+  shuffle,
+  isSolvable,
+  countClearable,
+  getStuckCells,
+  wouldOppose,
+  hasOpposingPairs,
+  checkQuality,
+  makePuzzle,
+  calcSlide,
+  slideDuration,
+} from './gameLogic.js';
