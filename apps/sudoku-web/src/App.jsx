@@ -11,7 +11,7 @@ import {
   checkCompletedSections,
   isBoardComplete,
   getHint
-} from '@fruit-sudoku/core';
+} from '@famerlo/sudoku-core';
 import { playCorrectSound, playWrongSound, playSectionCompleteSound, playPuzzleCompleteSound } from './sounds';
 
 const SAD_EMOJIS = ['😢', '😭', '😤', '😠', '😡', '🤬', '😰', '😨', '😱', '😖', '😣', '😞', '😩', '🥺', '😿'];

@@ -24,7 +24,7 @@ import {
   checkCompletedSections,
   isBoardComplete,
   getHint
-} from '@fruit-sudoku/core';
+} from '@famerlo/sudoku-core';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const BOARD_PADDING = 40; // horizontal padding around board

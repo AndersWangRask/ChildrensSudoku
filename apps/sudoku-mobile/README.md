@@ -58,4 +58,4 @@ mobile/
 
 ## Shared Code
 
-This app shares game logic with the web version through the `packages/core` module, demonstrating effective code reuse across platforms.
+This app shares game logic with the web version through the `packages/sudoku-core` module, demonstrating effective code reuse across platforms.
