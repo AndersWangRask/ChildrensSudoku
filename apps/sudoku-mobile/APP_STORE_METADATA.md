@@ -1,7 +1,11 @@
-# App Store Metadata — Free Fruit Sudoku for Kids
+# App Store Metadata — Fruit Sudoku for Kids
 
 ## App Name
-Free Fruit Sudoku for Kids
+Fruit Sudoku for Kids
+
+("Free" was dropped 2026-11-21: Apple's guidelines don't allow price wording in
+metadata, and it's a common first-review rejection. The web version keeps its
+name and URL, famerlo.com/free-fruit-sudoku-for-kids/.)
 
 ## Subtitle (30 chars max)
 Fun Fruit Puzzle for Children
@@ -35,18 +39,27 @@ HOW TO PLAY:
 Made with love by Famerlo — Family life, organized!
 
 ## Keywords (100 chars max)
-sudoku,kids,puzzle,fruit,children,educational,logic,game,free,brain,learning
+puzzle,children,educational,logic,game,brain,learning,emoji,family,school,easy,preschool,smart
+
+(Words already in the app name, like sudoku, fruit and kids, are indexed
+anyway, so repeating them wastes the 100 characters. "free" is pricing
+wording. 94 characters.)
 
 ## Category
-Primary: Games — Puzzle
-Secondary: Education
+Primary: Kids, age band 6–8 (decided 2026-11-21). Apple offers only fixed
+bands (5 and under, 6–8, 9–11); the band picks the Kids section the app is
+featured in, while the 4+ age rating lets anyone download it.
+Secondary: Games — Puzzle
+
+Kids Category rules this app meets: no ads, no analytics or tracking, no in-app
+purchases, and a parental gate (ParentalGate.js) on every link that leaves the app.
 
 ## Age Rating
 Ages 4+
 No objectionable content
 
 ## Privacy Policy URL
-(Needed — suggest hosting at https://famerlo.com/free-fruit-sudoku-for-kids/privacy)
+https://famerlo.com/free-fruit-sudoku-for-kids/privacy (live)
 
 ## Privacy Details
 - Data collected: None

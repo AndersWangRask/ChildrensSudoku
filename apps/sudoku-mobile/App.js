@@ -190,7 +190,7 @@ function HowToPlay({ visible, onClose }) {
           <Text style={howToStyles.bullet}>• Hard — 9x9 grid (classic Sudoku size)</Text>
 
           <Text style={howToStyles.sectionTitle}>About Famerlo</Text>
-          <Text style={howToStyles.bodyText}>Free Fruit Sudoku for Kids is brought to you by Famerlo.</Text>
+          <Text style={howToStyles.bodyText}>Fruit Sudoku for Kids is brought to you by Famerlo.</Text>
           <Text style={howToStyles.bodyText}>Famerlo is an AI-powered family assistant that helps busy parents manage their children's activities, schedules, and daily logistics — all through natural conversation.</Text>
           <Text style={howToStyles.bodyText}>It integrates with Google Calendar, Apple Calendar, and Microsoft Outlook, and can even translate school messages and activity notes for families new to a country.</Text>
           <Text style={howToStyles.bodyText}>Famerlo is GDPR-compliant, with family data hosted in Scandinavia and double-encrypted.</Text>
@@ -591,7 +591,7 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <StatusBar style="auto" />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.title}>Free Fruit Sudoku for Kids 🍎</Text>
+        <Text style={styles.title}>Fruit Sudoku for Kids 🍎</Text>
         {renderBoard()}
         {renderFruitButtons()}
         {renderStatusArea()}
