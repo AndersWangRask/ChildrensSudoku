@@ -9,9 +9,9 @@ import {
   SafeAreaView,
   Dimensions,
   Alert,
-  Modal,
-  Linking
+  Modal
 } from 'react-native';
+import { useParentalGate } from './ParentalGate';
 import { createAudioPlayer } from 'expo-audio';
 import { File, Paths } from 'expo-file-system';
 import * as Haptics from 'expo-haptics';
@@ -154,8 +154,11 @@ async function playPuzzleCompleteSound() {
 }
 
 function HowToPlay({ visible, onClose }) {
+  // Own gate instance, rendered inside this Modal so it stacks on top of it.
+  const [gate, openLinkWithGate] = useParentalGate();
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="fullScreen">
+      {gate}
       <SafeAreaView style={howToStyles.container}>
         <View style={howToStyles.header}>
           <Text style={howToStyles.title}>How to Play / About Us 🍎</Text>
@@ -193,7 +196,7 @@ function HowToPlay({ visible, onClose }) {
           <Text style={howToStyles.bodyText}>Famerlo is GDPR-compliant, with family data hosted in Scandinavia and double-encrypted.</Text>
           <Text
             style={howToStyles.link}
-            onPress={() => Linking.openURL('https://famerlo.com')}
+            onPress={() => openLinkWithGate('https://famerlo.com')}
           >
             Visit famerlo.com to learn more
           </Text>
@@ -299,6 +302,8 @@ export default function App() {
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [hintCell, setHintCell] = useState(null);
   const [flashingSections, setFlashingSections] = useState([]);
+  // Kids Category: links out of the app must pass a parental gate.
+  const [gate, openLinkWithGate] = useParentalGate();
   const errorTimersRef = useRef([]);
 
   useEffect(() => {
@@ -611,7 +616,7 @@ export default function App() {
           <Text style={styles.howToPlayText}>How to play / About us</Text>
         </TouchableOpacity>
       </ScrollView>
-      <TouchableOpacity style={styles.footer} onPress={() => Linking.openURL('https://famerlo.com')}>
+      <TouchableOpacity style={styles.footer} onPress={() => openLinkWithGate('https://famerlo.com')}>
         <View style={styles.footerTitleRow}>
           <View style={styles.famerloLogo}>
             <View style={[styles.logoDot, { opacity: 1 }]} />
@@ -624,6 +629,7 @@ export default function App() {
         <Text style={styles.footerLink}>Click here to learn more</Text>
       </TouchableOpacity>
       <HowToPlay visible={showHowToPlay} onClose={() => setShowHowToPlay(false)} />
+      {gate}
     </SafeAreaView>
   );
 }
