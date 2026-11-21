@@ -4,10 +4,16 @@
 // every link out of the app to sit behind a "parental gate": a check an
 // adult passes in seconds but a young child can't easily pass. The usual
 // accepted pattern is a question a pre-reader can't solve, so we ask
-// for the product of two numbers written out in WORDS ("fourteen times
-// six"). A child who can't yet read multi-syllable number words, or
-// multiply 14 x 6 in their head, is stopped. The answer is typed on the
-// number pad, so guessing by tapping a button is not possible.
+// for the product of two small numbers written out in WORDS ("five
+// times seven"). The protection comes mainly from reading the words; the
+// sum itself is deliberately easy. A first version used 12-19 x 3-9, and
+// that proved too hard for adults without a calculator (Anders,
+// 2026-11-21). The answer is typed on the number pad, so it can't be
+// guessed by tapping a button.
+//
+// A birth-year question was considered and rejected. A child gets past
+// it by typing any old year, and it asks for age data in a Kids Category
+// app, which App Review looks for.
 //
 // Usage:
 //   const [gate, openLinkWithGate] = useParentalGate();
@@ -32,11 +38,12 @@ const ONES = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'ei
   'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen',
   'eighteen', 'nineteen'];
 
-// A in 12..19 and B in 3..9: products 36..171. Hard to guess, and
-// quick for an adult to work out.
+// A in 2..6 and B in 2..10: products 4..60, all within the times tables
+// adults know by heart. x1 is left out because "one times seven" is too
+// easy to guess.
 function newQuestion() {
-  const a = 12 + Math.floor(Math.random() * 8);
-  const b = 3 + Math.floor(Math.random() * 7);
+  const a = 2 + Math.floor(Math.random() * 5);
+  const b = 2 + Math.floor(Math.random() * 9);
   return { text: `${ONES[a]} times ${ONES[b]}`, answer: a * b };
 }
 
@@ -80,7 +87,7 @@ export function ParentalGate({ visible, onPass, onCancel }) {
             value={input}
             onChangeText={(t) => setInput(t.replace(/[^0-9]/g, ''))}
             keyboardType="number-pad"
-            maxLength={3}
+            maxLength={2}
             autoFocus
             onSubmitEditing={submit}
             accessibilityLabel="Answer"
