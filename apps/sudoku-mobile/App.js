@@ -12,6 +12,7 @@ import {
   Modal
 } from 'react-native';
 import { useParentalGate } from './ParentalGate';
+import { SCREENSHOT_SCENE, buildScreenshotScene } from './screenshotScene';
 import { createAudioPlayer } from 'expo-audio';
 import { File, Paths } from 'expo-file-system';
 import * as Haptics from 'expo-haptics';
@@ -336,7 +337,23 @@ export default function App() {
   };
 
   useEffect(() => {
-    generateNewPuzzle();
+    // Screenshot builds only (see screenshotScene.js). In store builds
+    // SCREENSHOT_SCENE is null and a normal puzzle is generated.
+    const scene = SCREENSHOT_SCENE && buildScreenshotScene(SCREENSHOT_SCENE);
+    if (!scene) {
+      generateNewPuzzle();
+      return;
+    }
+    setDifficulty(scene.difficulty);
+    setGridSize(scene.gridSize);
+    setCurrentFruits(scene.fruits);
+    setSolution(scene.solution);
+    setBoard(scene.board);
+    setCompletedSections(scene.completedSections);
+    setSelectedEmoji(scene.selectedEmoji);
+    setIsComplete(scene.isComplete);
+    setActiveErrors(scene.errors);
+    setShowHowToPlay(scene.showHowToPlay);
   }, []);
 
   const handleHint = () => {
