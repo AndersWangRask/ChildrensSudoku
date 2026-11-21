@@ -6,11 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#fef08a"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.famerlo.fruitsudoku",
@@ -34,6 +29,27 @@
       "eas": {
         "projectId": ""
       }
-    }
+    },
+    "plugins": [
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundPlayback": false
+        }
+      ],
+      "expo-asset",
+      "expo-status-bar",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#fef08a",
+          "imageWidth": 200
+        }
+      ]
+    ]
   }
 }

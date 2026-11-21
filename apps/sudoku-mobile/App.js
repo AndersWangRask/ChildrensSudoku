@@ -12,7 +12,8 @@ import {
   Modal,
   Linking
 } from 'react-native';
-import { Audio } from 'expo-av';
+import { createAudioPlayer } from 'expo-audio';
+import { File, Paths } from 'expo-file-system';
 import * as Haptics from 'expo-haptics';
 import {
   FRUITS,
@@ -53,22 +54,46 @@ function isFruitComplete(fruit, board, solution) {
   return true;
 }
 
-// Simple beep sound generation using expo-av
-async function playBeep(frequency = 440, durationMs = 200) {
+// Simple beep sounds, synthesised in code (no audio assets).
+//
+// Played with expo-audio, which replaced expo-av (removed in Expo SDK 55).
+// Each tone is written once to a small .wav in the cache directory and
+// played from there. The native players (AVPlayer on iOS) can't be
+// relied on to play `data:` URIs, which is what the expo-av version used.
+const toneUris = new Map();
+
+function toneUri(frequency, durationMs) {
+  const key = `${frequency}-${durationMs}`;
+  let uri = toneUris.get(key);
+  if (!uri) {
+    const file = new File(Paths.cache, `tone-${key}.wav`);
+    if (!file.exists) {
+      file.create({ overwrite: true });
+      file.write(generateWavBytes(frequency, durationMs));
+    }
+    uri = file.uri;
+    toneUris.set(key, uri);
+  }
+  return uri;
+}
+
+function playBeep(frequency = 440, durationMs = 200) {
   try {
-    const { sound } = await Audio.Sound.createAsync(
-      { uri: `data:audio/wav;base64,${generateWavBase64(frequency, durationMs)}` },
-      { shouldPlay: true }
-    );
-    sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.didJustFinish) sound.unloadAsync();
+    const player = createAudioPlayer({ uri: toneUri(frequency, durationMs) });
+    // Release the native player once the tone has finished playing.
+    const sub = player.addListener('playbackStatusUpdate', (status) => {
+      if (status.didJustFinish) {
+        sub.remove();
+        player.remove();
+      }
     });
+    player.play();
   } catch (e) {
     // Sound is non-critical; silently ignore errors
   }
 }
 
-function generateWavBase64(frequency, durationMs) {
+function generateWavBytes(frequency, durationMs) {
   const sampleRate = 22050;
   const numSamples = Math.floor(sampleRate * durationMs / 1000);
   const dataSize = numSamples * 2;
@@ -99,10 +124,7 @@ function generateWavBase64(frequency, durationMs) {
     view.setInt16(44 + i * 2, sample * 32767, true);
   }
 
-  const bytes = new Uint8Array(buffer);
-  let binary = '';
-  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-  return btoa(binary);
+  return new Uint8Array(buffer);
 }
 
 async function playCorrectSound() {
@@ -462,8 +484,7 @@ export default function App() {
                   </Text>
                 </TouchableOpacity>
               );
-            })
-            ))}
+            })}
           </View>
         ))}
       </View>
