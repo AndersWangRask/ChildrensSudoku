@@ -4,8 +4,10 @@
 A monorepo of children's games published under the Famerlo brand. Currently contains Free Fruit Sudoku for Kids (web + mobile) and Arrow Puzzle (web).
 
 ## Current Status
-- Branch: `react-native-expo`
-- Sudoku mobile app (React Native/Expo) is the primary product
+- Branch: `main` (the `react-native-expo` branch was merged and retired 2026-11-21)
+- Sudoku mobile app (React Native/Expo, SDK 58) is the primary product. iOS builds
+  run on a Mac Mini build host. Version 1.0.0 (1) is on TestFlight (2026-11-21).
+  The build and signing recipe is in famerlo-devman `docs/020 - Mac Mini Build Host.md`.
 - Sudoku web app is production-ready (PWA, SEO, accessibility)
 - Arrow Puzzle web app is in early development
 
