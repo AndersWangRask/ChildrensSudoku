@@ -46,7 +46,7 @@ FamerloGames/
 Each game has up to two deployable apps: a web version and a mobile version. Both are independently buildable and deployable.
 
 - **Web apps** use React + Vite + Tailwind CSS, built as static sites with PWA support.
-- **Mobile apps** use React Native + Expo, built via EAS for App Store and Play Store.
+- **Mobile apps** use React Native + Expo. iOS builds are made locally on the Mac Mini build host, not with EAS: `fdevman ios-release <repo> <app-subdir>` (from famerlo-devman, run on the home LAN) builds, signs and uploads to TestFlight. See famerlo-devman `docs/020 - Mac Mini Build Host.md`. Android (Play Store) comes later; its build path is not decided yet. `eas.json` is left over from the original EAS setup and is not used.
 - App names follow the pattern `<game>-web` and `<game>-mobile`.
 - Each app has its own `package.json` and can have a `docs/` subdirectory for app-specific documentation if needed.
 
